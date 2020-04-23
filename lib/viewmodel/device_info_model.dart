@@ -20,7 +20,7 @@ class DeviceInfoModel extends ChangeNotifier {
   Future<String> getDeviceId() async {
     AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
     debugPrint(
-        'Device Manufacturer ${androidInfo.manufacturer}, Model ${androidInfo.brand} ${androidInfo.model}');
+        'Device Manufacturer - ${androidInfo.manufacturer}, Model : ${androidInfo.brand} ${androidInfo.model}, Android Version : ${androidInfo.version.release}');
 
     _deviceId = androidInfo.androidId.toUpperCase();
     debugPrint('deviceId => $_deviceId');
