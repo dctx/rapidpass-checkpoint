@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -60,6 +61,10 @@ class WelcomeScreenState extends State<WelcomeScreen>
       if (appSecrets != null) {
         appState.appSecrets = appSecrets;
       }
+
+      //  if (kReleaseMode) {
+      //    apiRepository.apiService.checkUpdate();
+      //  }
     });
   }
 

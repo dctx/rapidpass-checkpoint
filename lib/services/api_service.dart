@@ -9,6 +9,7 @@ import 'package:rapidpass_checkpoint/data/pass_csv_to_json_converter.dart';
 import 'package:rapidpass_checkpoint/models/app_secrets.dart';
 import 'package:rapidpass_checkpoint/models/control_code.dart';
 import 'package:rapidpass_checkpoint/models/database_sync_state.dart';
+import 'package:rapidpass_checkpoint/services/software_update_service.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -26,11 +27,14 @@ abstract class IApiService {
   Future<void> verifyPlateNumber(String plateNumber);
 
   Future<void> verifyControlNumber(String controlNumber);
+
+  Future<void> checkUpdate();
 }
 
 class ApiService extends IApiService {
   final HttpClientAdapter httpClientAdapter;
   final String baseUrl;
+  final SoftwareUpdateService softwareUpdate;
 
   static const authenticateDevicePath = '/checkpoint/auth';
   static const getBatchPassesPath = '/batch/access-passes';
@@ -40,7 +44,9 @@ class ApiService extends IApiService {
     HttpClientAdapter httpClientAdapter,
   }) : this.httpClientAdapter = httpClientAdapter != null
             ? httpClientAdapter
-            : DefaultHttpClientAdapter();
+            : DefaultHttpClientAdapter(),
+        this.softwareUpdate = SoftwareUpdateService(
+            baseUrl: baseUrl, httpClientAdapter: httpClientAdapter);
 
   static const int thirtySeconds = 30000;
   static const int tenSeconds = 10000;
@@ -173,5 +179,10 @@ class ApiService extends IApiService {
   Future<void> verifyPlateNumber(String plateNumber) {
     // TODO: implement verifyPlateNumber
     return null;
+  }
+
+  @override
+  Future<void> checkUpdate() async {
+    return softwareUpdate.checkUpdate();
   }
 }
