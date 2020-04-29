@@ -10,6 +10,7 @@ import 'package:rapidpass_checkpoint/components/flavor_banner.dart';
 import 'package:rapidpass_checkpoint/flavor.dart';
 import 'package:rapidpass_checkpoint/helpers/dialog_helper.dart';
 import 'package:rapidpass_checkpoint/models/app_state.dart';
+import 'package:rapidpass_checkpoint/models/user_location.dart';
 import 'package:rapidpass_checkpoint/repository/api_repository.dart';
 import 'package:rapidpass_checkpoint/screens/credits_screen.dart';
 import 'package:rapidpass_checkpoint/screens/qr_scanner_screen.dart';
@@ -291,6 +292,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
 
   void _onAllPermissionGranted() {
     Provider.of<DeviceInfoModel>(context, listen: false).getImei();
+    Provider.of<UserLocation>(context, listen: false);
   }
 
   void _onPermissionDeniedPermanently() {
