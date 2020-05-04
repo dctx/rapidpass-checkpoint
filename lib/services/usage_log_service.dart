@@ -32,23 +32,14 @@ class UsageLogService {
       return;
     }
 
-    // convert coordinates (floating-point) into q30 format (fixed-point)
-    const int fixedPoint_q30 = 1073741824; //2^30
-    final int latitude = userLocation?.latitude != null
-        ? ((userLocation.latitude / 180) * fixedPoint_q30).truncate()
-        : null;
-    final int longitude = userLocation?.longitude != null
-        ? ((userLocation.longitude / 180) * fixedPoint_q30).truncate()
-        : null;
-
     await apiRepository.localDatabaseService.insertUsageLog(UsageLog.fromJson({
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'controlNumber': result?.qrData?.controlCode,
       'inputData': result.inputData,
       'mode': result.mode.value,
       'status': result.status.value,
-      'latitude': latitude,
-      'longitude': longitude
+      'latitude': userLocation?.latitude,
+      'longitude': userLocation?.longitude
     }).createCompanion(true));
   }
 

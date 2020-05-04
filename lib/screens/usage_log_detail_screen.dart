@@ -281,14 +281,6 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
   }
 
   _buildFooter(UsageLogInfo log) {
-    const int fixedPoint_q30 = 1073741824; //2^30
-    double latitude = log.usageLog?.latitude != null
-        ? (log.usageLog.latitude / fixedPoint_q30) * 180
-        : null;
-    double longitude = log.usageLog?.longitude != null
-        ? (log.usageLog.longitude / fixedPoint_q30) * 180
-        : null;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,8 +294,8 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         Text('GPS Coordinates:    '
-            '${latitude != null ? latitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''}    '
-            '${longitude != null ? longitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''} ')
+            '${log.usageLog?.latitude != null ? log.usageLog.latitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''}    '
+            '${log.usageLog?.longitude != null ? log.usageLog.longitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''} ')
       ],
     );
   }

@@ -745,8 +745,8 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
   final int mode;
   final int status;
   final String inputData;
-  final int latitude;
-  final int longitude;
+  final double latitude;
+  final double longitude;
   UsageLog(
       {@required this.id,
       @required this.timestamp,
@@ -761,6 +761,7 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final doubleType = db.typeSystem.forDartType<double>();
     return UsageLog(
       id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
       timestamp:
@@ -771,10 +772,10 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
       status: intType.mapFromDatabaseResponse(data['${effectivePrefix}status']),
       inputData: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}input_data']),
-      latitude:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}latitude']),
-      longitude:
-          intType.mapFromDatabaseResponse(data['${effectivePrefix}longitude']),
+      latitude: doubleType
+          .mapFromDatabaseResponse(data['${effectivePrefix}latitude']),
+      longitude: doubleType
+          .mapFromDatabaseResponse(data['${effectivePrefix}longitude']),
     );
   }
   factory UsageLog.fromJson(Map<String, dynamic> json,
@@ -787,8 +788,8 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
       mode: serializer.fromJson<int>(json['mode']),
       status: serializer.fromJson<int>(json['status']),
       inputData: serializer.fromJson<String>(json['inputData']),
-      latitude: serializer.fromJson<int>(json['latitude']),
-      longitude: serializer.fromJson<int>(json['longitude']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
     );
   }
   @override
@@ -801,8 +802,8 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
       'mode': serializer.toJson<int>(mode),
       'status': serializer.toJson<int>(status),
       'inputData': serializer.toJson<String>(inputData),
-      'latitude': serializer.toJson<int>(latitude),
-      'longitude': serializer.toJson<int>(longitude),
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
     };
   }
 
@@ -838,8 +839,8 @@ class UsageLog extends DataClass implements Insertable<UsageLog> {
           int mode,
           int status,
           String inputData,
-          int latitude,
-          int longitude}) =>
+          double latitude,
+          double longitude}) =>
       UsageLog(
         id: id ?? this.id,
         timestamp: timestamp ?? this.timestamp,
@@ -899,8 +900,8 @@ class UsageLogsCompanion extends UpdateCompanion<UsageLog> {
   final Value<int> mode;
   final Value<int> status;
   final Value<String> inputData;
-  final Value<int> latitude;
-  final Value<int> longitude;
+  final Value<double> latitude;
+  final Value<double> longitude;
   const UsageLogsCompanion({
     this.id = const Value.absent(),
     this.timestamp = const Value.absent(),
@@ -931,8 +932,8 @@ class UsageLogsCompanion extends UpdateCompanion<UsageLog> {
       Value<int> mode,
       Value<int> status,
       Value<String> inputData,
-      Value<int> latitude,
-      Value<int> longitude}) {
+      Value<double> latitude,
+      Value<double> longitude}) {
     return UsageLogsCompanion(
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
@@ -1023,11 +1024,11 @@ class $UsageLogsTable extends UsageLogs
   }
 
   final VerificationMeta _latitudeMeta = const VerificationMeta('latitude');
-  GeneratedIntColumn _latitude;
+  GeneratedRealColumn _latitude;
   @override
-  GeneratedIntColumn get latitude => _latitude ??= _constructLatitude();
-  GeneratedIntColumn _constructLatitude() {
-    return GeneratedIntColumn(
+  GeneratedRealColumn get latitude => _latitude ??= _constructLatitude();
+  GeneratedRealColumn _constructLatitude() {
+    return GeneratedRealColumn(
       'latitude',
       $tableName,
       true,
@@ -1035,11 +1036,11 @@ class $UsageLogsTable extends UsageLogs
   }
 
   final VerificationMeta _longitudeMeta = const VerificationMeta('longitude');
-  GeneratedIntColumn _longitude;
+  GeneratedRealColumn _longitude;
   @override
-  GeneratedIntColumn get longitude => _longitude ??= _constructLongitude();
-  GeneratedIntColumn _constructLongitude() {
-    return GeneratedIntColumn(
+  GeneratedRealColumn get longitude => _longitude ??= _constructLongitude();
+  GeneratedRealColumn _constructLongitude() {
+    return GeneratedRealColumn(
       'longitude',
       $tableName,
       true,
@@ -1141,10 +1142,10 @@ class $UsageLogsTable extends UsageLogs
       map['input_data'] = Variable<String, StringType>(d.inputData.value);
     }
     if (d.latitude.present) {
-      map['latitude'] = Variable<int, IntType>(d.latitude.value);
+      map['latitude'] = Variable<double, RealType>(d.latitude.value);
     }
     if (d.longitude.present) {
-      map['longitude'] = Variable<int, IntType>(d.longitude.value);
+      map['longitude'] = Variable<double, RealType>(d.longitude.value);
     }
     return map;
   }
