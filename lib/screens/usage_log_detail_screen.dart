@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:html/dom.dart' as htmlParser;
 import 'package:intl/intl.dart';
 import 'package:rapidpass_checkpoint/components/flavor_banner.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
@@ -280,6 +281,14 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
   }
 
   _buildFooter(UsageLogInfo log) {
+    const int fixedPoint_q30 = 1073741824; //2^30
+    double latitude = log.usageLog?.latitude != null
+        ? (log.usageLog.latitude / fixedPoint_q30) * 180
+        : null;
+    double longitude = log.usageLog?.longitude != null
+        ? (log.usageLog.longitude / fixedPoint_q30) * 180
+        : null;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,6 +301,9 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
           ' via ${_getModeName(log.usageLog.mode)}',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
+        Text('GPS Coordinates:    '
+            '${latitude != null ? latitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''}    '
+            '${longitude != null ? longitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''} ')
       ],
     );
   }

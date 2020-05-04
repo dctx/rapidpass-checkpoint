@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
 import 'package:rapidpass_checkpoint/helpers/local_notifications_helper.dart';
 import 'package:rapidpass_checkpoint/models/app_state.dart';
+import 'package:rapidpass_checkpoint/models/user_location.dart';
 import 'package:rapidpass_checkpoint/repository/api_repository.dart';
 import 'package:rapidpass_checkpoint/screens/about_screen.dart';
 import 'package:rapidpass_checkpoint/screens/authenticating_screen.dart';
@@ -76,7 +77,7 @@ class RapidPassCheckpointApp extends StatelessWidget {
           update: (_, apiRepository, __) =>
               PassValidationService(apiRepository),
         ),
-        StreamProvider(
+        StreamProvider<UserLocation>(
           create: (_) => LocationService().locationStream,
         ),
       ],
