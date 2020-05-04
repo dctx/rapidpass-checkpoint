@@ -21,7 +21,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 fit: StackFit.expand,
                 children: <Widget>[
                   WebView(
-                    initialUrl: 'https://airtable.com/shrOwYDOSd2IdF8rh',
+                    initialUrl: 'https://rapidpass.ph/qcp-feedback',
                     javascriptMode: JavascriptMode.unrestricted,
                     onPageFinished: (value) {
                       setState(() {
