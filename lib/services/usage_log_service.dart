@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
 import 'package:rapidpass_checkpoint/models/app_state.dart';
 import 'package:rapidpass_checkpoint/models/scan_results.dart';
+import 'package:rapidpass_checkpoint/models/user_location.dart';
 import 'package:rapidpass_checkpoint/repository/api_repository.dart';
 import 'package:rapidpass_checkpoint/services/local_database_service.dart';
 import 'package:rapidpass_checkpoint/services/pass_validation_service.dart';
@@ -21,6 +22,8 @@ class UsageLogService {
       final BuildContext context, ScanResults result) async {
     final ApiRepository apiRepository =
         Provider.of<ApiRepository>(context, listen: false);
+    final UserLocation userLocation =
+        Provider.of<UserLocation>(context, listen: false);
 
     if (result == null ||
         result.inputData == null ||
@@ -29,12 +32,23 @@ class UsageLogService {
       return;
     }
 
+    // convert coordinates (floating-point) into q30 format (fixed-point)
+    const int fixedPoint_q30 = 1073741824; //2^30
+    final int latitude = userLocation?.latitude != null
+        ? ((userLocation.latitude / 180) * fixedPoint_q30).truncate()
+        : null;
+    final int longitude = userLocation?.longitude != null
+        ? ((userLocation.longitude / 180) * fixedPoint_q30).truncate()
+        : null;
+
     await apiRepository.localDatabaseService.insertUsageLog(UsageLog.fromJson({
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'controlNumber': result?.qrData?.controlCode,
       'inputData': result.inputData,
       'mode': result.mode.value,
-      'status': result.status.value
+      'status': result.status.value,
+      'latitude': latitude,
+      'longitude': longitude
     }).createCompanion(true));
   }
 
