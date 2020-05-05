@@ -59,9 +59,9 @@ class UsageLogs extends Table {
 
   TextColumn get inputData => text()();
 
-  IntColumn get latitude => integer().nullable()();
+  RealColumn get latitude => real().nullable()();
 
-  IntColumn get longitude => integer().nullable()();
+  RealColumn get longitude => real().nullable()();
 }
 
 @UseMoor(tables: [ValidPasses, InvalidPasses, UsageLogs])
