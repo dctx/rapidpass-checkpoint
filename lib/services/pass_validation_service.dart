@@ -193,4 +193,31 @@ class PassValidationService {
     sr.inputData = controlNumber.toString();
     return sr;
   }
+
+  Future<ScanResults> checkRevokePass(final ScanResults sr) async {
+    final String normalizedControlCode =
+        sr.qrData.controlCodeAsString().toUpperCase();
+    final revokePass = await apiRepository.localDatabaseService
+        .getRevokePass(normalizedControlCode);
+    ScanResults result;
+    if (revokePass != null) {
+      // This RapidPass is in the Revocation list,
+      // so mark it as SUSPENDED, then re-validate.
+      final QrData qrData = QrData(
+          passType: sr.qrData.passType,
+          apor: sr.qrData.apor,
+          controlCode: sr.qrData.controlCode,
+          validFrom: sr.qrData.validFrom,
+          validUntil: sr.qrData.validUntil,
+          idOrPlate: sr.qrData.idOrPlate,
+          status: 'SUSPENDED',
+          name: sr.qrData.name);
+      result = validate(qrData);
+      result.mode = sr.mode;
+      result.inputData = sr.inputData;
+    } else {
+      result = sr;
+    }
+    return result;
+  }
 }
