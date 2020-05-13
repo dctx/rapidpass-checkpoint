@@ -90,7 +90,7 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
                 ),
                 _buildFieldRow(
                   'APOR',
-                  '${qrData.apor} - ${aporCodes[qrData.apor]}',
+                  '${aporCodes[qrData.apor] != null ? '${qrData.apor} - ${aporCodes[qrData.apor]}' : '${qrData.apor}'}',
                 ),
                 _buildFieldRow(
                   'Valid From',

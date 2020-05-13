@@ -229,7 +229,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                       ),
                       _buildFieldRow(
                         'APOR',
-                        '${scanResults.qrData.apor} - ${aporCodes[scanResults.qrData.apor]}',
+                        ' ${aporCodes[scanResults.qrData.apor] != null ? '${scanResults.qrData.apor} - ${aporCodes[scanResults.qrData.apor]}' : '${scanResults.qrData.apor}'}',
                         _isErrorField(
                             log.scanResult.errors, RapidPassField.apor),
                       ),
