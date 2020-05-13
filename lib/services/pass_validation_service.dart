@@ -153,7 +153,8 @@ class PassValidationService {
           validFrom: validPass.validFrom,
           validUntil: validPass.validUntil,
           idOrPlate: validPass.idOrPlate,
-          status: validPass.status);
+          status: validPass.status,
+          name: sr.qrData.name);
       sr = validate(qrData);
     } else {
       sr = ScanResults(null,
@@ -180,7 +181,8 @@ class PassValidationService {
           validFrom: validPass.validFrom,
           validUntil: validPass.validUntil,
           idOrPlate: validPass.idOrPlate,
-          status: validPass.status);
+          status: validPass.status,
+          name: sr.qrData.name);
       sr = validate(qrData);
     } else {
       sr = ScanResults(null,
