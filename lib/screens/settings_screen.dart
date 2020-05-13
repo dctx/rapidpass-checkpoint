@@ -126,9 +126,9 @@ class SettingsScreenState extends State<SettingsScreen> {
         Provider.of<ApiRepository>(context, listen: false);
     final AppState appState = Provider.of<AppState>(context, listen: false);
 
-    await apiRepository.localDatabaseService.deleteValidPasses();
+    await apiRepository.localDatabaseService.deleteRevokePasses();
     final int totalRecords =
-        await apiRepository.localDatabaseService.countPasses();
+        await apiRepository.localDatabaseService.countRevokePasses();
     appState.databaseRecordCount = totalRecords;
 
     await AppStorage.setLastSyncOn(0).then((timestamp) {
