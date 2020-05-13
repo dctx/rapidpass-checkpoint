@@ -244,7 +244,12 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                         '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(scanResults.qrData.validUntil * 1000))}',
                         _isErrorField(
                             log.scanResult.errors, RapidPassField.validUntil),
-                      )
+                      ),
+                      _buildFieldRow(
+                        'Name',
+                        scanResults.qrData.name,
+                        false,
+                      ),
                     ],
                   )
                 : Column(
@@ -272,7 +277,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
         ),
         Expanded(
             flex: 5,
-            child: Text(value,
+            child: Text(value != null ? value : '',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                     fontSize: 14, fontWeight: FontWeight.w500, color: color)))

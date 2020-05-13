@@ -99,7 +99,11 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
                 _buildFieldRow(
                   'Valid Until',
                   '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(qrData.validUntil * 1000))}',
-                )
+                ),
+                _buildFieldRow(
+                  'Name',
+                  qrData.name,
+                ),
               ],
             ),
           ),
@@ -120,7 +124,7 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
         ),
         Expanded(
             flex: 5,
-            child: Text(value,
+            child: Text(value != null ? value : '',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                     fontSize: 14, fontWeight: FontWeight.w500, color: color)))
