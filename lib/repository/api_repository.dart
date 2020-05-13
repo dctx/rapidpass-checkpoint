@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
 import 'package:rapidpass_checkpoint/models/database_sync_state.dart';
+import 'package:rapidpass_checkpoint/models/revoke_sync_state.dart';
 import 'package:rapidpass_checkpoint/services/api_service.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 import 'package:rapidpass_checkpoint/services/local_database_service.dart';
@@ -18,6 +19,9 @@ abstract class IApiRepository {
   Future<void> verifyPlateNumber(String plateNumber);
 
   Future<void> verifyControlNumber(int controlNumber);
+
+  Future<RevokeSyncState> downloadRevokePasses(
+      final String accessCode, RevokeSyncState state);
 }
 
 class ApiRepository extends IApiRepository {
@@ -98,5 +102,32 @@ class ApiRepository extends IApiRepository {
   Future<void> verifyPlateNumber(String plateNumber) {
     // TODO: implement verifyPlateNumber
     return apiService.verifyPlateNumber(plateNumber);
+  }
+
+  @override
+  Future<RevokeSyncState> downloadRevokePasses(
+      final String accessCode, RevokeSyncState state) async {
+    try {
+      await apiService
+          .getRevokePasses(accessCode, state)
+          .catchError((e) => throw Exception(e));
+      await localDatabaseService
+          .bulkInsertOrUpdateRevokePasses(state.passesForInsert);
+      state.insertedRowsCount =
+          state.insertedRowsCount + state.passesForInsert.length;
+      state.passesForInsert.forEach((item) {
+        state.since = item.timestamp.value > state.since
+            ? item.timestamp.value
+            : state.since;
+      });
+      debugPrint(
+          'state.insertedRowsCount: ${state.insertedRowsCount}, state.since: ${state.since}');
+    } catch (e, stackTrace) {
+      debugPrint(e.toString());
+      debugPrintStack(stackTrace: stackTrace);
+      state.exception = e;
+      state.statusMessage = e.toString();
+    }
+    return state;
   }
 }
