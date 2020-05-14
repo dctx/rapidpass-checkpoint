@@ -205,24 +205,16 @@ class ApiService extends IApiService {
         contentType: Headers.jsonContentType,
         headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
-    final Response response =
-        await client.get(getRevokePassesPath, queryParameters: {
-      'since': state.since,
-      'pageNumber': state.pageNumber,
-      'pageSize': state.pageSize
-    });
+    final Response response = await client
+        .get(getRevokePassesPath, queryParameters: {'since': state.since});
 
     try {
-      final data = response.data;
-      debugPrint('${inspect(data)}');
-      state.totalPages = data['totalPages'];
-      state.totalRows = data['totalRows'];
       final list = response.data['data'];
       final listLength = list.length;
-
-      debugPrint('Got $listLength rows...');
-
       final List<RevokePassesCompanion> receivedPasses = List();
+
+      debugPrint('${inspect(response.data)}');
+      debugPrint('Got $listLength rows...');
 
       for (final row in list.sublist(0, listLength)) {
         try {
@@ -236,6 +228,7 @@ class ApiService extends IApiService {
       }
       state.passesForInsert = receivedPasses;
       state.pageNumber = state.pageNumber + 1;
+      state.totalPages = 1;
       return state;
     } catch (e) {
       rethrow;
