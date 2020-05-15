@@ -218,6 +218,7 @@ class ApiService extends IApiService {
 
       for (final row in list.sublist(0, listLength)) {
         try {
+          if( row['eventType'] != "RapidPassRevoked") continue;
           debugPrint('Got pass ${row['controlCode']}');
           final revokePass = RevokePass.fromJson(row);
           final companion = revokePass.createCompanion(true);
