@@ -151,6 +151,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(status.mainMessage,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.0,
