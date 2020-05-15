@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:moor/moor.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
 import 'package:rapidpass_checkpoint/models/control_code.dart';
+import 'package:rapidpass_checkpoint/models/scan_results.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 import 'package:rapidpass_checkpoint/utils/aes.dart';
 
@@ -211,22 +212,35 @@ class LocalDatabaseService implements ILocalDatabaseService {
 
     // group per day starting from 12 midnight of current timezone
     final int timeZoneOffset = DateTime.now().timeZoneOffset.inHours;
-    dynamic count = {};
+    dynamic stats = {};
     for (UsageLog log in res) {
       int date = (log.timestamp + (milliseconds1Hour * timeZoneOffset)) ~/
           (milliseconds1Hour * 24);
       String key = ((date * (milliseconds1Hour * 24)) -
               (milliseconds1Hour * timeZoneOffset))
           .toString();
-      if (count[key] == null) {
-        count[key] = 0;
+      if (stats[key] == null) {
+        stats[key] = {};
+        stats[key]['scanned'] = 0;
+        stats[key]['approved'] = 0;
+        stats[key]['denied'] = 0;
       }
-      count[key]++;
+
+      stats[key]['scanned']++;
+      if (log.status == ScanResultStatus.ENTRY_APPROVED.value) {
+        stats[key]['approved']++;
+      } else {
+        stats[key]['denied']++;
+      }
     }
 
     List<UsageDateLog> usageDateLog = [];
-    count.forEach((final key, final value) {
-      usageDateLog.add(UsageDateLog(int.parse(key), value));
+    stats.forEach((final key, final value) {
+      usageDateLog.add(UsageDateLog(
+          timestamp: int.parse(key),
+          scanned: value['scanned'],
+          approved: value['approved'],
+          denied: value['denied']));
     });
     return usageDateLog;
   }
@@ -283,12 +297,14 @@ class LocalDatabaseService implements ILocalDatabaseService {
 
 class UsageDateLog {
   int timestamp;
-  int count;
+  int scanned;
+  int approved;
+  int denied;
 
-  UsageDateLog(this.timestamp, this.count);
+  UsageDateLog({this.timestamp, this.scanned, this.approved, this.denied});
 
   @override
   String toString() {
-    return 'timestamp: ${timestamp.toString()}, count:${count.toString()}';
+    return '{ timestamp: ${timestamp.toString()}, scanned:${scanned.toString()}, approved:${approved.toString()}, denied:${denied.toString()} }';
   }
 }
