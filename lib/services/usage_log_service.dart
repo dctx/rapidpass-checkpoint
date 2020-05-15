@@ -24,6 +24,7 @@ class UsageLogService {
         Provider.of<ApiRepository>(context, listen: false);
     final UserLocation userLocation =
         Provider.of<UserLocation>(context, listen: false);
+    final AppState appState = Provider.of<AppState>(context, listen: false);
 
     if (result == null ||
         result.inputData == null ||
@@ -32,7 +33,8 @@ class UsageLogService {
       return;
     }
 
-    await apiRepository.localDatabaseService.insertUsageLog(UsageLog.fromJson({
+    await apiRepository.localDatabaseService
+        .insertUsageLog(UsageLog.fromJson({
       'timestamp': DateTime.now().millisecondsSinceEpoch,
       'controlNumber': result?.qrData?.controlCode,
       'inputData': result.inputData,
@@ -40,7 +42,14 @@ class UsageLogService {
       'status': result.status.value,
       'latitude': userLocation?.latitude,
       'longitude': userLocation?.longitude
-    }).createCompanion(true));
+    }).createCompanion(true))
+        .then((_) {
+      if (result.status == ScanResultStatus.ENTRY_APPROVED) {
+        appState.stats.incrementStats(approved: 1, denied: 0);
+      } else {
+        appState.stats.incrementStats(approved: 0, denied: 1);
+      }
+    });
   }
 
   static Future<List<UsageLogInfo>> getUsageLogs24Hour(
