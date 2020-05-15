@@ -191,6 +191,7 @@ class ApiService extends IApiService {
     return softwareUpdate.checkUpdate();
   }
 
+  @override
   Future<RevokeSyncState> getRevokePasses(
       String accessToken, RevokeSyncState state) async {
     debugPrint('getRevokePasses.state: $state');
