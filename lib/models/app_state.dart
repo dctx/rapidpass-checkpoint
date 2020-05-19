@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
+import 'package:rapidpass_checkpoint/models/usage_stats.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 
 import 'app_secrets.dart';
@@ -12,6 +13,7 @@ class AppState extends ChangeNotifier {
   PackageInfo _packageInfo;
   dynamic _databaseSyncLog = [];
   int _databaseRecordCount = 0;
+  UsageStats stats = UsageStats();
 
   static final DateFormat dateFormat = DateFormat.yMMMd('en_US').add_jm();
 

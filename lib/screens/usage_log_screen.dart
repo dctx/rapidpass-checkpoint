@@ -64,7 +64,7 @@ class _UsageLogScreenState extends State<UsageLogScreen> {
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 0),
         title: Text(
-          '${log.count} RapidPass',
+          '${log.scanned} RapidPass',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
         trailing: Text(
