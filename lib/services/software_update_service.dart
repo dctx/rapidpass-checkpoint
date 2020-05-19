@@ -123,7 +123,7 @@ class SoftwareUpdateService {
     // String computedHash = await compute(computeHash, file);
     String computedHash = await computeCustom(computeHash, file);
 
-    if (computedHash == hash) {
+    if (computedHash.toUpperCase() == hash.toUpperCase()) {
       return true;
     } else {
       print('[Hash mismatch] computedHash: $computedHash, expectedHash: $hash');
