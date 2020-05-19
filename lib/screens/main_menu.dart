@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:rapidpass_checkpoint/common/constants/rapid_asset_constants.dart';
@@ -8,6 +9,7 @@ import 'package:rapidpass_checkpoint/components/flavor_banner.dart';
 import 'package:rapidpass_checkpoint/components/rapid_main_menu_button.dart';
 import 'package:rapidpass_checkpoint/models/app_state.dart';
 import 'package:rapidpass_checkpoint/models/scan_results.dart';
+import 'package:rapidpass_checkpoint/models/usage_stats.dart';
 import 'package:rapidpass_checkpoint/screens/qr_scanner_screen.dart';
 import 'package:rapidpass_checkpoint/services/pass_validation_service.dart';
 import 'package:rapidpass_checkpoint/services/usage_log_service.dart';
@@ -68,37 +70,25 @@ class MainMenu extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            "CHECK VIA:",
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.bold),
-          ),
           RapidMainMenuButton(
             title: 'Scan QR Code',
             iconPath: RapidAssetConstants.icQrCode,
             iconPathInverted: RapidAssetConstants.icQrCodeWhite,
             onPressed: () => _scanAndNavigate(context),
           ),
-          RapidMainMenuButton(
-            title: 'Plate Number',
-            iconPath: RapidAssetConstants.icPlateNumber,
-            iconPathInverted: RapidAssetConstants.icPlateNumberWhite,
-            onPressed: () {
-              Navigator.pushNamed(context, "/checkPlateNumber");
-            },
-          ),
-          RapidMainMenuButton(
-            title: 'Control Number',
-            iconPath: RapidAssetConstants.icControlCode,
-            iconPathInverted: RapidAssetConstants.icControlCodeWhite,
-            onPressed: () {
-              Navigator.pushNamed(context, '/checkControlNumber');
-            },
-          ),
+          FutureBuilder(
+              future: _getUsageStats(context),
+              builder: (bContext, bSnapshot) {
+                if (bSnapshot.connectionState == ConnectionState.done) {
+                  return bSnapshot.hasData
+                      ? _buildStatsWidget(stats: bSnapshot.data)
+                      : CircularProgressIndicator();
+                } else {
+                  return CircularProgressIndicator();
+                }
+              }),
           Padding(
-            padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+            padding: const EdgeInsets.only(top: 40.0, bottom: 20.0),
             child: SizedBox(
               height: 48.0,
               width: 300.0,
@@ -166,5 +156,123 @@ class MainMenu extends StatelessWidget {
       debugPrint('Error occured: $e');
     }
     return null;
+  }
+
+  Future<UsageStats> _getUsageStats(BuildContext context) {
+    final appState = Provider.of<AppState>(context, listen: false);
+
+    // get 12 midnight timestamp today
+    int timestampToday = appState.stats
+        .getMidnightTimestamp(DateTime.now().millisecondsSinceEpoch);
+
+    if (appState.stats.oneDay.timestamp == 0 ||
+        appState.stats.oneDay.timestamp != timestampToday) {
+      // query database and update cached data (appState.stats)
+      return UsageLogService.getUsageLogByDate(context).then((res) {
+        // get timestamp of last 6 days
+        int timestampLastWeek = timestampToday - (1000 * 60 * 60 * 24 * 6);
+        appState.stats.oneDay.timestamp = timestampToday;
+        appState.stats.oneWeek.timestamp = timestampLastWeek;
+        appState.stats.oneWeek.scanned = 0;
+        appState.stats.oneWeek.approved = 0;
+        appState.stats.oneWeek.denied = 0;
+
+        res.forEach((final log) {
+          if (log.timestamp == timestampToday) {
+            appState.stats.oneDay.scanned = log.scanned;
+            appState.stats.oneDay.approved = log.approved;
+            appState.stats.oneDay.denied = log.denied;
+          }
+          if ((log.timestamp <= timestampToday) &&
+              (log.timestamp >= timestampLastWeek)) {
+            appState.stats.oneWeek.scanned += log.scanned;
+            appState.stats.oneWeek.approved += log.approved;
+            appState.stats.oneWeek.denied += log.denied;
+          }
+        });
+        return appState.stats;
+      });
+    } else {
+      // return cached data (appState.stats) to minimize database query
+      return Future.value(appState.stats);
+    }
+  }
+
+  _buildStatsWidget({final UsageStats stats}) {
+    String dateToday =
+        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneDay.timestamp))}';
+    String dateWeek =
+        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneWeek.timestamp))}';
+
+    return Column(
+      children: <Widget>[
+        _buildStatsRow(
+            title: 'Today ($dateToday)',
+            scanned: stats.oneDay.scanned,
+            approved: stats.oneDay.approved,
+            denied: stats.oneDay.denied),
+        _buildStatsRow(
+            title: 'This Week ($dateWeek to $dateToday)',
+            scanned: stats.oneWeek.scanned,
+            approved: stats.oneWeek.approved,
+            denied: stats.oneWeek.denied)
+      ],
+    );
+  }
+
+  _buildStatsRow({title, scanned, approved, denied}) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 40.0, 0, 10.0),
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Container(
+          height: 70.0,
+          child: Row(
+            children: <Widget>[
+              _buildStatsColumn('SCANNED', '$scanned', false),
+              _buildStatsColumn('APPROVED', '$approved', true),
+              _buildStatsColumn('DENIED', '$denied', false),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  _buildStatsColumn(name, value, isCenter) {
+    return Expanded(
+        flex: 1,
+        child: Center(
+            child: Container(
+          constraints: BoxConstraints.expand(),
+          decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(width: 1.0, color: green300),
+                  bottom: BorderSide(width: 1.0, color: green300),
+                  left: isCenter
+                      ? BorderSide(width: 1.0, color: green300)
+                      : BorderSide.none,
+                  right: isCenter
+                      ? BorderSide(width: 1.0, color: green300)
+                      : BorderSide.none)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(name),
+              SizedBox(
+                height: 8.0,
+              ),
+              Text(
+                value,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ],
+          ),
+        )));
   }
 }
