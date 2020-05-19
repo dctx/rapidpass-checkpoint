@@ -35,6 +35,17 @@ abstract class ILocalDatabaseService {
 
   Future deleteUsageLogs();
 
+  Future<int> countRevokePasses();
+
+  Future<RevokePass> getRevokePass(final String controlCode);
+
+  Future<int> insertRevokePass(final RevokePassesCompanion companion);
+
+  Future bulkInsertOrUpdateRevokePasses(
+      final List<RevokePassesCompanion> forInserting);
+
+  Future deleteRevokePasses();
+
   void dispose();
 }
 
@@ -223,6 +234,50 @@ class LocalDatabaseService implements ILocalDatabaseService {
   @override
   Future<int> insertUsageLog(UsageLogsCompanion companion) {
     return appDatabase.insertUsageLog(companion);
+  }
+
+  @override
+  Future<int> countRevokePasses() async {
+    return appDatabase.countRevokePasses();
+  }
+
+  @override
+  Future<RevokePass> getRevokePass(final String controlCode) {
+    return appDatabase.getRevokePass(controlCode).then((revokePass) async {
+      if (revokePass == null) {
+        return null;
+      } else {
+        return revokePass;
+      }
+    });
+  }
+
+  @override
+  Future<int> insertRevokePass(final RevokePassesCompanion companion) async {
+    return appDatabase.insertRevokePass(companion);
+  }
+
+  @override
+  Future bulkInsertOrUpdateRevokePasses(
+      final List<RevokePassesCompanion> forInserting) async {
+    final futures = forInserting
+        .map((fi) => getRevokePass(fi.controlCode.value).then((existing) {
+              if (existing == null) {
+                return fi;
+              } else {
+                debugPrint('existing: $existing');
+                final RevokePassesCompanion forUpdate =
+                    fi.copyWith(id: Value(existing.id));
+                return forUpdate;
+              }
+            }));
+    return Future.wait(futures.toList()).then((bulkInsertOrUpdate) =>
+        appDatabase.insertOrUpdateAllRevokePasses(bulkInsertOrUpdate));
+  }
+
+  @override
+  Future deleteRevokePasses() async {
+    return appDatabase.deleteRevokePasses();
   }
 }
 

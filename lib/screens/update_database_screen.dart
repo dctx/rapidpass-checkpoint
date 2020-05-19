@@ -8,6 +8,7 @@ import 'package:rapidpass_checkpoint/components/flavor_banner.dart';
 import 'package:rapidpass_checkpoint/helpers/dialog_helper.dart';
 import 'package:rapidpass_checkpoint/models/app_state.dart';
 import 'package:rapidpass_checkpoint/models/database_sync_state.dart';
+import 'package:rapidpass_checkpoint/models/revoke_sync_state.dart';
 import 'package:rapidpass_checkpoint/repository/api_repository.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 import 'package:rapidpass_checkpoint/themes/default.dart';
@@ -160,7 +161,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
             width: 250,
             child: FlatButton(
               onPressed: _hasConnection
-                  ? !_isUpdating ? () => _updateDatabase(context) : null
+                  ? !_isUpdating ? () => _updateRevokePasses(context) : null
                   : null,
               child: Text(
                   _isUpdating
@@ -343,6 +344,110 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
       if (recordsAdded > 0) {
         await AppStorage.addDatabaseSyncLog(
                 {'count': recordsAdded, 'dateTime': lastSyncTimestamp})
+            .then((r) => appState.addDatabaseSyncLog(r));
+      }
+
+      // Note:
+      // setLastSyncOn() is not updated during exception because
+      // current value will be used on next database sync.
+
+      if (e.toString() == 'Download has been stopped.') {
+        Navigator.of(context).pop(true);
+      } else {
+        DialogHelper.showAlertDialog(
+          context,
+          title: 'Database Sync Failed!',
+          message:
+              'There\'s something wrong while getting the new information from the database.',
+        );
+      }
+    }
+
+    setState(() {
+      _isUpdating = false;
+    });
+  }
+
+  Future _updateRevokePasses(final BuildContext context) async {
+    setState(() {
+      _isStopped = false;
+      _progressValue = 0;
+      _isUpdating = true;
+    });
+
+    final AppState appState = Provider.of<AppState>(context, listen: false);
+    final ApiRepository apiRepository =
+        Provider.of<ApiRepository>(context, listen: false);
+
+    final int lastSyncOn = await AppStorage.getLastSyncOn();
+    debugPrint('lastSyncOn: $lastSyncOn');
+    final lastSyncOnDateTime =
+        DateTime.fromMillisecondsSinceEpoch(lastSyncOn * 1000);
+    final DateFormat dateFormat = new DateFormat.yMd().add_jm();
+    debugPrint('lastSyncOnDateTime: ${dateFormat.format(lastSyncOnDateTime)}');
+    RevokeSyncState state = RevokeSyncState(since: lastSyncOn);
+
+    try {
+      final accessCode = appState.appSecrets?.accessCode;
+
+      if (appState.databaseSyncLog.isEmpty) {
+        await AppStorage.setLastSyncOn(0).then((timestamp) {
+          debugPrint('After setLastSyncOn(), timestamp: $timestamp');
+          appState.databaseLastUpdated = timestamp;
+        });
+      }
+
+      int totalPages = 0;
+      do {
+        state = await apiRepository.downloadRevokePasses(accessCode, state);
+        if (state == null || state.exception != null) {
+          throw (state?.exception);
+        }
+        if (_isStopped) {
+          throw ('Download has been stopped.');
+        }
+        totalPages = state.totalPages;
+        setState(() {
+          _progressValue = ((state.pageNumber / totalPages) * 100).truncate();
+        });
+      } while (state.pageNumber < totalPages);
+
+      final int totalRecords =
+          await apiRepository.localDatabaseService.countRevokePasses();
+      final int recordsAdded = totalRecords - appState.databaseRecordCount;
+      appState.databaseRecordCount = totalRecords;
+
+      await AppStorage.setLastSyncOn(state.since * 1000).then((timestamp) {
+        debugPrint('After setLastSyncOn(), timestamp: $timestamp');
+        appState.databaseLastUpdated = timestamp;
+      });
+
+      if (recordsAdded > 0) {
+        await AppStorage.addDatabaseSyncLog(
+                {'count': recordsAdded, 'dateTime': state.since * 1000})
+            .then((r) => appState.addDatabaseSyncLog(r));
+      }
+
+      final String message = recordsAdded > 0
+          ? 'Downloaded $recordsAdded new ${(recordsAdded > 1 ? 'records' : 'record')}.'
+          : 'No new records found. Total ${totalRecords > 1 ? 'records' : 'record'} in database is $totalRecords.';
+
+      DialogHelper.showAlertDialog(
+        context,
+        title: 'Database Synced!',
+        message: message,
+      );
+    } catch (e) {
+      debugPrint('_updateRevokePasses() exception: ' + e.toString());
+
+      final int totalRecords =
+          await apiRepository.localDatabaseService.countRevokePasses();
+      final int recordsAdded = totalRecords - appState.databaseRecordCount;
+      appState.databaseRecordCount = totalRecords;
+
+      if (recordsAdded > 0) {
+        await AppStorage.addDatabaseSyncLog(
+                {'count': recordsAdded, 'dateTime': state.since * 1000})
             .then((r) => appState.addDatabaseSyncLog(r));
       }
 

@@ -9,6 +9,7 @@ import 'package:rapidpass_checkpoint/data/pass_csv_to_json_converter.dart';
 import 'package:rapidpass_checkpoint/models/app_secrets.dart';
 import 'package:rapidpass_checkpoint/models/control_code.dart';
 import 'package:rapidpass_checkpoint/models/database_sync_state.dart';
+import 'package:rapidpass_checkpoint/models/revoke_sync_state.dart';
 import 'package:rapidpass_checkpoint/services/software_update_service.dart';
 
 class ApiException implements Exception {
@@ -29,6 +30,9 @@ abstract class IApiService {
   Future<void> verifyControlNumber(String controlNumber);
 
   Future<void> checkUpdate();
+
+  Future<RevokeSyncState> getRevokePasses(
+      String accessToken, RevokeSyncState state);
 }
 
 class ApiService extends IApiService {
@@ -38,11 +42,12 @@ class ApiService extends IApiService {
 
   static const authenticateDevicePath = '/checkpoint/auth';
   static const getBatchPassesPath = '/batch/access-passes';
+  static const getRevokePassesPath = '/checkpoint/revocations';
 
   ApiService({
     @required this.baseUrl,
     HttpClientAdapter httpClientAdapter,
-  }) : this.httpClientAdapter = httpClientAdapter != null
+  })  : this.httpClientAdapter = httpClientAdapter != null
             ? httpClientAdapter
             : DefaultHttpClientAdapter(),
         this.softwareUpdate = SoftwareUpdateService(
@@ -184,5 +189,51 @@ class ApiService extends IApiService {
   @override
   Future<void> checkUpdate() async {
     return softwareUpdate.checkUpdate();
+  }
+
+  @override
+  Future<RevokeSyncState> getRevokePasses(
+      String accessToken, RevokeSyncState state) async {
+    debugPrint('getRevokePasses.state: $state');
+    if (state.totalPages > 0 && state.pageNumber > state.totalPages) {
+      state.passesForInsert = List();
+      return state;
+    }
+    final Dio client = Dio(BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: 30000,
+        receiveTimeout: 60000,
+        contentType: Headers.jsonContentType,
+        headers: {'Authorization': 'Bearer $accessToken'}));
+    client.httpClientAdapter = httpClientAdapter;
+    final Response response = await client
+        .get(getRevokePassesPath, queryParameters: {'since': state.since});
+
+    try {
+      final list = response.data['data'];
+      final listLength = list.length;
+      final List<RevokePassesCompanion> receivedPasses = List();
+
+      debugPrint('${inspect(response.data)}');
+      debugPrint('Got $listLength rows...');
+
+      for (final row in list.sublist(0, listLength)) {
+        try {
+          if( row['eventType'] != "RapidPassRevoked") continue;
+          debugPrint('Got pass ${row['controlCode']}');
+          final revokePass = RevokePass.fromJson(row);
+          final companion = revokePass.createCompanion(true);
+          receivedPasses.add(companion);
+        } on FormatException catch (e) {
+          debugPrint(e.toString());
+        }
+      }
+      state.passesForInsert = receivedPasses;
+      state.pageNumber = state.pageNumber + 1;
+      state.totalPages = 1;
+      return state;
+    } catch (e) {
+      rethrow;
+    }
   }
 }
