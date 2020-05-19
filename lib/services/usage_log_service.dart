@@ -60,6 +60,9 @@ class UsageLogService {
       if (log.mode == ScanMode.QR_CODE.value) {
         sr = PassValidationService.deserializeAndValidate(
             appState.appSecrets, log.inputData);
+        if (sr.isValid) {
+          sr = await passValidationService.checkRevokePass(sr);
+        }
       } else if (log.mode == ScanMode.CONTROL_NUMBER.value) {
         sr = await passValidationService
             .checkControlNumber(int.parse(log.inputData));

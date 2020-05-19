@@ -16,8 +16,8 @@ class AppStorage {
   static const _signingKeyKey = 'rapidPass.signingKey';
   static const _encryptionKeyKey = 'rapidPass.encryptionKey';
   static const _accessCodeKey = 'rapidPass.accessCode';
-  static const _lastSyncOnKey = 'lastSyncOn';
-  static const _databaseSyncLogKey = "databaseSyncLog";
+  static const _lastSyncOnKey = 'revokeLastSyncOn';
+  static const _databaseSyncLogKey = "revokeSyncLog";
 
   static Future<void> setMasterQrCode(final String masterQrCode) async {
     if (masterQrCode == null) return;

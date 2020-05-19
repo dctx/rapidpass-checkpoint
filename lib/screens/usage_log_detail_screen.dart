@@ -151,6 +151,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(status.mainMessage,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.0,
@@ -229,7 +230,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                       ),
                       _buildFieldRow(
                         'APOR',
-                        '${scanResults.qrData.apor} - ${aporCodes[scanResults.qrData.apor]}',
+                        ' ${aporCodes[scanResults.qrData.apor] != null ? '${scanResults.qrData.apor} - ${aporCodes[scanResults.qrData.apor]}' : '${scanResults.qrData.apor}'}',
                         _isErrorField(
                             log.scanResult.errors, RapidPassField.apor),
                       ),
@@ -244,7 +245,12 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
                         '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(scanResults.qrData.validUntil * 1000))}',
                         _isErrorField(
                             log.scanResult.errors, RapidPassField.validUntil),
-                      )
+                      ),
+                      _buildFieldRow(
+                        'Name',
+                        scanResults.qrData.name,
+                        false,
+                      ),
                     ],
                   )
                 : Column(
@@ -272,7 +278,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
         ),
         Expanded(
             flex: 5,
-            child: Text(value,
+            child: Text(value != null ? value : '',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                     fontSize: 14, fontWeight: FontWeight.w500, color: color)))

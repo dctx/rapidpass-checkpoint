@@ -1156,6 +1156,211 @@ class $UsageLogsTable extends UsageLogs
   }
 }
 
+class RevokePass extends DataClass implements Insertable<RevokePass> {
+  final int id;
+  final int timestamp;
+  final String controlCode;
+  RevokePass(
+      {@required this.id,
+      @required this.timestamp,
+      @required this.controlCode});
+  factory RevokePass.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return RevokePass(
+      id: intType.mapFromDatabaseResponse(data['${effectivePrefix}id']),
+      timestamp:
+          intType.mapFromDatabaseResponse(data['${effectivePrefix}timestamp']),
+      controlCode: stringType
+          .mapFromDatabaseResponse(data['${effectivePrefix}control_code']),
+    );
+  }
+  factory RevokePass.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return RevokePass(
+      id: serializer.fromJson<int>(json['id']),
+      timestamp: serializer.fromJson<int>(json['timestamp']),
+      controlCode: serializer.fromJson<String>(json['controlCode']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'timestamp': serializer.toJson<int>(timestamp),
+      'controlCode': serializer.toJson<String>(controlCode),
+    };
+  }
+
+  @override
+  RevokePassesCompanion createCompanion(bool nullToAbsent) {
+    return RevokePassesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      timestamp: timestamp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timestamp),
+      controlCode: controlCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(controlCode),
+    );
+  }
+
+  RevokePass copyWith({int id, int timestamp, String controlCode}) =>
+      RevokePass(
+        id: id ?? this.id,
+        timestamp: timestamp ?? this.timestamp,
+        controlCode: controlCode ?? this.controlCode,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('RevokePass(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('controlCode: $controlCode')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf(
+      $mrjc(id.hashCode, $mrjc(timestamp.hashCode, controlCode.hashCode)));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is RevokePass &&
+          other.id == this.id &&
+          other.timestamp == this.timestamp &&
+          other.controlCode == this.controlCode);
+}
+
+class RevokePassesCompanion extends UpdateCompanion<RevokePass> {
+  final Value<int> id;
+  final Value<int> timestamp;
+  final Value<String> controlCode;
+  const RevokePassesCompanion({
+    this.id = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.controlCode = const Value.absent(),
+  });
+  RevokePassesCompanion.insert({
+    this.id = const Value.absent(),
+    @required int timestamp,
+    @required String controlCode,
+  })  : timestamp = Value(timestamp),
+        controlCode = Value(controlCode);
+  RevokePassesCompanion copyWith(
+      {Value<int> id, Value<int> timestamp, Value<String> controlCode}) {
+    return RevokePassesCompanion(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      controlCode: controlCode ?? this.controlCode,
+    );
+  }
+}
+
+class $RevokePassesTable extends RevokePasses
+    with TableInfo<$RevokePassesTable, RevokePass> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $RevokePassesTable(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  GeneratedIntColumn _id;
+  @override
+  GeneratedIntColumn get id => _id ??= _constructId();
+  GeneratedIntColumn _constructId() {
+    return GeneratedIntColumn('id', $tableName, false,
+        hasAutoIncrement: true, declaredAsPrimaryKey: true);
+  }
+
+  final VerificationMeta _timestampMeta = const VerificationMeta('timestamp');
+  GeneratedIntColumn _timestamp;
+  @override
+  GeneratedIntColumn get timestamp => _timestamp ??= _constructTimestamp();
+  GeneratedIntColumn _constructTimestamp() {
+    return GeneratedIntColumn(
+      'timestamp',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _controlCodeMeta =
+      const VerificationMeta('controlCode');
+  GeneratedTextColumn _controlCode;
+  @override
+  GeneratedTextColumn get controlCode =>
+      _controlCode ??= _constructControlCode();
+  GeneratedTextColumn _constructControlCode() {
+    return GeneratedTextColumn(
+      'control_code',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [id, timestamp, controlCode];
+  @override
+  $RevokePassesTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'revoke_passes';
+  @override
+  final String actualTableName = 'revoke_passes';
+  @override
+  VerificationContext validateIntegrity(RevokePassesCompanion d,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    if (d.id.present) {
+      context.handle(_idMeta, id.isAcceptableValue(d.id.value, _idMeta));
+    }
+    if (d.timestamp.present) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableValue(d.timestamp.value, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (d.controlCode.present) {
+      context.handle(_controlCodeMeta,
+          controlCode.isAcceptableValue(d.controlCode.value, _controlCodeMeta));
+    } else if (isInserting) {
+      context.missing(_controlCodeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RevokePass map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return RevokePass.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  Map<String, Variable> entityToSql(RevokePassesCompanion d) {
+    final map = <String, Variable>{};
+    if (d.id.present) {
+      map['id'] = Variable<int, IntType>(d.id.value);
+    }
+    if (d.timestamp.present) {
+      map['timestamp'] = Variable<int, IntType>(d.timestamp.value);
+    }
+    if (d.controlCode.present) {
+      map['control_code'] = Variable<String, StringType>(d.controlCode.value);
+    }
+    return map;
+  }
+
+  @override
+  $RevokePassesTable createAlias(String alias) {
+    return $RevokePassesTable(_db, alias);
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $ValidPassesTable _validPasses;
@@ -1165,9 +1370,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       _invalidPasses ??= $InvalidPassesTable(this);
   $UsageLogsTable _usageLogs;
   $UsageLogsTable get usageLogs => _usageLogs ??= $UsageLogsTable(this);
+  $RevokePassesTable _revokePasses;
+  $RevokePassesTable get revokePasses =>
+      _revokePasses ??= $RevokePassesTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [validPasses, invalidPasses, usageLogs];
+      [validPasses, invalidPasses, usageLogs, revokePasses];
 }

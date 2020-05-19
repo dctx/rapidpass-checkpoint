@@ -156,12 +156,8 @@ class MainMenu extends StatelessWidget {
                 appState.appSecrets, base64Encoded);
         debugPrint('deserializedQrCode.isValid: ${deserializedQrCode.isValid}');
         if (deserializedQrCode.isValid) {
-          final ScanResults fromDatabase = await passValidationService
-              .checkControlNumber(deserializedQrCode.qrData.controlCode);
-          debugPrint('fromDatabase.isValid: ${fromDatabase.isValid}');
-          return fromDatabase.qrData != null
-              ? fromDatabase
-              : deserializedQrCode;
+          return await passValidationService
+              .checkRevokePass(deserializedQrCode);
         } else {
           return deserializedQrCode;
         }
