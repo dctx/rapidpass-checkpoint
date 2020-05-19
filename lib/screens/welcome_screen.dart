@@ -62,9 +62,9 @@ class WelcomeScreenState extends State<WelcomeScreen>
         appState.appSecrets = appSecrets;
       }
 
-      //  if (kReleaseMode) {
-      //    apiRepository.apiService.checkUpdate();
-      //  }
+      if (kReleaseMode) {
+        apiRepository.apiService.checkUpdate();
+      }
     });
   }
 
