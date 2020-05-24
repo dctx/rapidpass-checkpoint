@@ -31,8 +31,11 @@ class AuthenticatingScreenState extends State<AuthenticatingScreen> {
     final DeviceInfoModel deviceInfoModel =
         Provider.of<DeviceInfoModel>(context, listen: false);
     final AppState appState = Provider.of<AppState>(context, listen: false);
-    _futureAppSecrets = _authenticate(apiRepository.apiService,
-            deviceInfoModel.imei, appState.masterQrCode)
+    _futureAppSecrets = _authenticate(
+            apiRepository.apiService,
+            deviceInfoModel.deviceId,
+            deviceInfoModel.imei,
+            appState.masterQrCode)
         .then((appSecrets) {
       appState.setAppSecrets(appSecrets).then((_) => widget.onSuccess(context));
       return appSecrets;
@@ -89,8 +92,27 @@ class AuthenticatingScreenState extends State<AuthenticatingScreen> {
     );
   }
 
-  Future<AppSecrets> _authenticate(final ApiService apiService,
-      final String imei, final String masterQrCode) async {
-    return apiService.authenticateDevice(imei: imei, masterKey: masterQrCode);
+  Future<AppSecrets> _authenticate(
+      final ApiService apiService,
+      final String deviceId,
+      final String imei,
+      final String masterQrCode) async {
+    try {
+      final String password = apiService.generatePassword(20);
+      final AppSecrets appSecrets = await apiService.registerDevice(
+          deviceId: deviceId,
+          imei: imei,
+          masterKey: masterQrCode,
+          password: password);
+      await apiService
+          .loginDevice(deviceId: imei, password: password)
+          .then((res) {
+        appSecrets.accessCode = res;
+      });
+      return Future.value(appSecrets);
+    } catch (e) {
+      print('_authenticate() exception');
+      rethrow;
+    }
   }
 }
