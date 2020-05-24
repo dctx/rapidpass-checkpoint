@@ -16,6 +16,7 @@ class AppStorage {
   static const _signingKeyKey = 'rapidPass.signingKey';
   static const _encryptionKeyKey = 'rapidPass.encryptionKey';
   static const _accessCodeKey = 'rapidPass.accessCode';
+  static const _accessPassword = 'rapidPass.accessPassword';
   static const _lastSyncOnKey = 'revokeLastSyncOn';
   static const _databaseSyncLogKey = "revokeSyncLog";
 
@@ -115,7 +116,8 @@ class AppStorage {
       secureStorage.write(key: _signingKeyKey, value: appSecrets.signingKey),
       secureStorage.write(
           key: _encryptionKeyKey, value: appSecrets.encryptionKey),
-      secureStorage.write(key: _accessCodeKey, value: appSecrets.accessCode)
+      secureStorage.write(key: _accessCodeKey, value: appSecrets.accessCode),
+      secureStorage.write(key: _accessPassword, value: appSecrets.password)
     ]).then((_) {
       debugPrint('AppSecrets saved!');
       return appSecrets;
@@ -126,7 +128,8 @@ class AppStorage {
     return Future.wait([
       secureStorage.read(key: _signingKeyKey),
       secureStorage.read(key: _encryptionKeyKey),
-      secureStorage.read(key: _accessCodeKey)
+      secureStorage.read(key: _accessCodeKey),
+      secureStorage.read(key: _accessPassword)
     ]).then((res) {
       debugPrint('appSecrets: ' + res.toString());
 
@@ -134,7 +137,10 @@ class AppStorage {
         return null;
       } else {
         return AppSecrets(
-            signingKey: res[0], encryptionKey: res[1], accessCode: res[2]);
+            signingKey: res[0],
+            encryptionKey: res[1],
+            accessCode: res[2],
+            password: res[3]);
       }
     }).catchError((e) {
       throw (null);
