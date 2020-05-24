@@ -89,7 +89,8 @@ class ApiService extends IApiService {
           return AppSecrets(
               signingKey: data['signingKey'],
               encryptionKey: data['encryptionKey'],
-              accessCode: data['accessCode']);
+              accessCode: data['accessCode'],
+              password: '');
         }
       }
       return Future.error('Unknown response from server.');
