@@ -35,7 +35,7 @@ abstract class IApiService {
 
   Future<void> verifyControlNumber(String controlNumber);
 
-  Future<void> checkUpdate();
+  Future<void> checkUpdate(final String accessToken);
 
   Future<RevokeSyncState> getRevokePasses(
       String accessToken, RevokeSyncState state);
@@ -306,8 +306,8 @@ class ApiService extends IApiService {
   }
 
   @override
-  Future<void> checkUpdate() async {
-    return softwareUpdate.checkUpdate();
+  Future<void> checkUpdate(final String accessToken) async {
+    return softwareUpdate.checkUpdate(accessToken);
   }
 
   @override
