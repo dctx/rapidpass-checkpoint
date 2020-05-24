@@ -24,11 +24,11 @@ class SoftwareUpdateService {
             ? httpClientAdapter
             : DefaultHttpClientAdapter();
 
-  Future<void> checkUpdate() async {
+  Future<void> checkUpdate(String accessToken) async {
     final Dio client = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: 30000,
-    ));
+        baseUrl: baseUrl,
+        connectTimeout: 30000,
+        headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
 
     try {

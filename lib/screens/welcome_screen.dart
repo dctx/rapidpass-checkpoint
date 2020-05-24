@@ -63,7 +63,9 @@ class WelcomeScreenState extends State<WelcomeScreen>
       }
 
       if (kReleaseMode) {
-        apiRepository.apiService.checkUpdate();
+        final DeviceInfoModel deviceInfoModel =
+            Provider.of<DeviceInfoModel>(context, listen: false);
+        apiRepository.checkUpdate(appState, deviceInfoModel);
       }
     });
   }
@@ -187,7 +189,8 @@ class WelcomeScreenState extends State<WelcomeScreen>
                         Selector<DeviceInfoModel, String>(
                           selector: (_, model) => model.deviceId,
                           builder: (_, String deviceId, __) {
-                            if (deviceId == null) return Text('Retrieving IMEI...');
+                            if (deviceId == null)
+                              return Text('Retrieving IMEI...');
                             return Text('DEVICE ID: $deviceId');
                           },
                         ),
