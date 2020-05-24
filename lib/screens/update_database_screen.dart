@@ -12,6 +12,8 @@ import 'package:rapidpass_checkpoint/models/revoke_sync_state.dart';
 import 'package:rapidpass_checkpoint/repository/api_repository.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 import 'package:rapidpass_checkpoint/themes/default.dart';
+import 'package:rapidpass_checkpoint/utils/jwt_decoder.dart';
+import 'package:rapidpass_checkpoint/viewmodel/device_info_model.dart';
 
 class UpdateDatabaseScreen extends StatefulWidget {
   @override
@@ -161,7 +163,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
             width: 250,
             child: FlatButton(
               onPressed: _hasConnection
-                  ? !_isUpdating ? () => _updateRevokePasses(context) : null
+                  ? !_isUpdating ? () => _updateDatabase(context) : null
                   : null,
               child: Text(
                   _isUpdating
@@ -260,6 +262,88 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
   }
 
   Future _updateDatabase(final BuildContext context) async {
+    setState(() {
+      _isStopped = false;
+      _progressValue = 0;
+      _isUpdating = true;
+    });
+
+    try {
+      await _authenticateDevice();
+      return _updateRevokePasses(context);
+    } catch (e) {
+      DialogHelper.showAlertDialog(
+        context,
+        title: 'Database Sync Failed!',
+        message:
+            'There\'s something wrong while getting the new information from the database.',
+      );
+    }
+
+    setState(() {
+      _isUpdating = false;
+    });
+  }
+
+  Future<void> _authenticateDevice() async {
+    final AppState appState = Provider.of<AppState>(context, listen: false);
+    final ApiRepository apiRepository =
+        Provider.of<ApiRepository>(context, listen: false);
+    final DeviceInfoModel deviceInfoModel =
+        Provider.of<DeviceInfoModel>(context, listen: false);
+    int retry = 1;
+
+    try {
+      do {
+        if (appState.appSecrets.password == null) {
+          await apiRepository.apiService
+              .registerDevice(
+                  deviceId: deviceInfoModel.imei,
+                  imei: deviceInfoModel.imei,
+                  masterKey: appState.masterQrCode,
+                  password: apiRepository.apiService.generatePassword(20))
+              .then((res) {
+            appState.appSecrets = res;
+          });
+        }
+
+        String accessCode = appState.appSecrets.accessCode;
+        final jwtPayload = JwtDecoder().parsePayLoad(accessCode);
+        int timestampNow = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        debugPrint(
+            'accessToken Expiration: ${jwtPayload != null ? DateTime.fromMillisecondsSinceEpoch(jwtPayload['exp'] * 1000) : 0}');
+
+        if (accessCode == null ||
+            jwtPayload == null ||
+            jwtPayload['exp'] <= timestampNow) {
+          await apiRepository.apiService
+              .loginDevice(
+                  deviceId: deviceInfoModel.imei,
+                  password: appState.appSecrets.password)
+              .then((res) {
+            appState.appSecrets.accessCode = res;
+            appState.setAppSecrets(appState.appSecrets);
+            retry = 0;
+          }).catchError((error) {
+            print('catch error');
+            if (error.response.statusCode == 401 && retry > 0) {
+              appState.appSecrets.password = null;
+            } else {
+              throw error;
+            }
+          });
+        } else {
+          retry = 0;
+        }
+        print('retry: $retry');
+      } while (retry-- > 0);
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
+
+  Future _updatePasses(final BuildContext context) async {
     setState(() {
       _isStopped = false;
       _progressValue = 0;
