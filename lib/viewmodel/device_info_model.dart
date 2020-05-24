@@ -1,17 +1,19 @@
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:imei_plugin/imei_plugin.dart';
 
 class DeviceInfoModel extends ChangeNotifier {
   String _imei;
   String get imei => _imei;
   String _deviceId;
+  String get deviceId => _deviceId;
 
   DeviceInfoModel() {
     debugPrint('initialized imei => $_imei');
   }
 
   Future<String> getImei() async {
-    _imei = await getDeviceId();
+    _imei = await ImeiPlugin.getImei();
     debugPrint('imei => $_imei');
     notifyListeners();
     return _imei;
