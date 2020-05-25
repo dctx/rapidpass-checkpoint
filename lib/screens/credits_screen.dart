@@ -105,6 +105,7 @@ class CreditsScreen extends ModalRoute<void> {
     'DCTx',
     'DevCon.ph',
     'Alistair Israel',
+    'Ariel De Castro',
     'Joshua Maiquez de Guzman',
     'Jonathan Mayol',
     'Jan Salvador Sebastian',
