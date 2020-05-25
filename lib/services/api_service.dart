@@ -44,6 +44,8 @@ abstract class IApiService {
 class ApiService extends IApiService {
   final HttpClientAdapter httpClientAdapter;
   final String baseUrl;
+  final String keycloakRealm;
+  final String keycloakClient;
   final SoftwareUpdateService softwareUpdate;
 
   static const authenticateDevicePath = '/checkpoint/auth';
@@ -54,6 +56,8 @@ class ApiService extends IApiService {
 
   ApiService({
     @required this.baseUrl,
+    @required this.keycloakRealm,
+    @required this.keycloakClient,
     HttpClientAdapter httpClientAdapter,
   })  : this.httpClientAdapter = httpClientAdapter != null
             ? httpClientAdapter
@@ -203,9 +207,9 @@ class ApiService extends IApiService {
 
   @override
   Future<String> loginDevice({String deviceId, String password}) async {
-    debugPrint('loginDevice() deviceID: $deviceId, password: $password');
+    debugPrint('loginDevice() deviceID: $deviceId, password: $password, keycloakRealm: $keycloakRealm, keycloakClient: $keycloakClient');
     final Dio client = Dio(BaseOptions(
-        baseUrl: 'https://id.cxpass.org/auth/realms/rapidpass/protocol',
+        baseUrl: 'https://id.cxpass.org/auth/realms/$keycloakRealm/protocol',
         connectTimeout: 30000,
         receiveTimeout: 60000,
         contentType: Headers.formUrlEncodedContentType));
@@ -213,7 +217,7 @@ class ApiService extends IApiService {
 
     try {
       final response = await client.post(loginDevicePath, data: {
-        'client_id': 'rapidpass-dashboard',
+        'client_id': keycloakClient,
         'grant_type': 'password',
         'username': deviceId,
         'password': password
