@@ -185,10 +185,10 @@ class WelcomeScreenState extends State<WelcomeScreen>
                           ),
                         ),
                         Selector<DeviceInfoModel, String>(
-                          selector: (_, model) => model.imei,
-                          builder: (_, String imei, __) {
-                            if (imei == null) return Text('Retrieving IMEI...');
-                            return Text('IMEI: $imei');
+                          selector: (_, model) => model.deviceId,
+                          builder: (_, String deviceId, __) {
+                            if (deviceId == null) return Text('Retrieving IMEI...');
+                            return Text('DEVICE ID: $deviceId');
                           },
                         ),
                       ],
@@ -296,6 +296,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _onAllPermissionGranted() {
+    Provider.of<DeviceInfoModel>(context, listen: false).getDeviceId();
     Provider.of<DeviceInfoModel>(context, listen: false).getImei();
     Provider.of<UserLocation>(context, listen: false);
   }

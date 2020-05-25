@@ -1,27 +1,15 @@
-import 'package:device_id/device_id.dart';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:imei_plugin/imei_plugin.dart';
-import 'package:flutter/services.dart';
 
 class DeviceInfoModel extends ChangeNotifier {
   String _imei;
   String get imei => _imei;
   String _deviceId;
-  String platformImei;
+  String get deviceId => _deviceId;
 
   DeviceInfoModel() {
-    // Future<String> platformImei = initPermission();
     debugPrint('initialized imei => $_imei');
-  }
-
-  Future<String> initPermission() async {
-    try {
-      platformImei =
-          await ImeiPlugin.getImei(shouldShowRequestPermissionRationale: false);
-    } on PlatformException {
-      platformImei = 'Failed to get platform version.';
-    }
-    return platformImei;
   }
 
   Future<String> getImei() async {
@@ -32,7 +20,11 @@ class DeviceInfoModel extends ChangeNotifier {
   }
 
   Future<String> getDeviceId() async {
-    _deviceId = await DeviceId.getID;
+    AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+    debugPrint(
+        'Device Manufacturer - ${androidInfo.manufacturer}, Model : ${androidInfo.brand} ${androidInfo.model}, Android Version : ${androidInfo.version.release}');
+
+    _deviceId = androidInfo.androidId.toUpperCase();
     debugPrint('deviceId => $_deviceId');
     return _deviceId;
   }

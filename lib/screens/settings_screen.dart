@@ -67,14 +67,6 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
               InkWell(
                 child: RoundedButton(
-                  padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
-                  minWidth: 300.0,
-                  text: 'Clear Usage Log',
-                  onPressed: () => _resetUsageLog(context),
-                ),
-              ),
-              InkWell(
-                child: RoundedButton(
                   padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 40.0),
                   minWidth: 300.0,
                   text: 'Feedback',
