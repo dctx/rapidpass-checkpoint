@@ -203,6 +203,8 @@ class RapidPassCheckpointApp extends StatelessWidget {
     final apiRepository = ApiRepository(
       apiService: ApiService(
         baseUrl: _flavor.apiBaseUrl,
+        keycloakRealm: _flavor.keycloakRealm,
+        keycloakClient: _flavor.keycloakClient
       ),
       localDatabaseService: localDatabaseService,
     );
