@@ -24,11 +24,11 @@ class SoftwareUpdateService {
             ? httpClientAdapter
             : DefaultHttpClientAdapter();
 
-  Future<void> checkUpdate() async {
+  Future<void> checkUpdate(String accessToken) async {
     final Dio client = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: 30000,
-    ));
+        baseUrl: baseUrl,
+        connectTimeout: 30000,
+        headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
 
     try {
@@ -66,7 +66,10 @@ class SoftwareUpdateService {
       final String localDirectory = await _cachePath;
       final String apkDownloadDir = '$localDirectory/apk';
 
-      if (version == packageInfo.version) {
+      final currentVersion =
+          '${packageInfo.version}+${packageInfo.buildNumber}';
+
+      if (version == currentVersion) {
         final dir = Directory(apkDownloadDir);
         if (dir.existsSync()) {
           dir.listSync().forEach((f) {

@@ -2,11 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rapidpass_checkpoint/data/app_database.dart';
+import 'package:rapidpass_checkpoint/models/app_state.dart';
 import 'package:rapidpass_checkpoint/models/database_sync_state.dart';
 import 'package:rapidpass_checkpoint/models/revoke_sync_state.dart';
 import 'package:rapidpass_checkpoint/services/api_service.dart';
 import 'package:rapidpass_checkpoint/services/app_storage.dart';
 import 'package:rapidpass_checkpoint/services/local_database_service.dart';
+import 'package:rapidpass_checkpoint/utils/jwt_decoder.dart';
+import 'package:rapidpass_checkpoint/viewmodel/device_info_model.dart';
 
 // TODO Rename this to RapidPassRepository
 abstract class IApiRepository {
@@ -22,6 +25,11 @@ abstract class IApiRepository {
 
   Future<RevokeSyncState> downloadRevokePasses(
       final String accessCode, RevokeSyncState state);
+
+  Future<void> checkUpdate(AppState appState, DeviceInfoModel deviceInfoModel);
+
+  Future<String> getAccessToken(
+      AppState appState, DeviceInfoModel deviceInfoModel);
 }
 
 class ApiRepository extends IApiRepository {
@@ -129,5 +137,78 @@ class ApiRepository extends IApiRepository {
       state.statusMessage = e.toString();
     }
     return state;
+  }
+
+  @override
+  Future<void> checkUpdate(
+      AppState appState, DeviceInfoModel deviceInfoModel) async {
+    getAccessToken(appState, deviceInfoModel).then((accessToken) {
+      apiService.checkUpdate(accessToken);
+    }).catchError((e) {
+      debugPrint('checkUpdate() exception: ' + e.toString());
+    });
+  }
+
+  @override
+  Future<String> getAccessToken(
+      AppState appState, DeviceInfoModel deviceInfoModel) async {
+    int retry = 1;
+
+    try {
+      if (appState.appSecrets == null || appState.masterQrCode == null) {
+        throw "Insufficient information.";
+      }
+
+      do {
+        // if password does not exist, then register the device
+        if (appState.appSecrets.password == null) {
+          await apiService
+              .registerDevice(
+                  deviceId: deviceInfoModel.imei,
+                  imei: deviceInfoModel.imei,
+                  masterKey: appState.masterQrCode,
+                  password: apiService.generatePassword(20))
+              .then((res) {
+            appState.appSecrets = res;
+          });
+        }
+
+        String accessCode = appState.appSecrets.accessCode;
+        final jwtPayload = JwtDecoder().parsePayLoad(accessCode);
+        int timestampNow = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        debugPrint(
+            'accessToken Expiration: ${jwtPayload != null ? DateTime.fromMillisecondsSinceEpoch(jwtPayload['exp'] * 1000) : 0}');
+
+        // if accessToken does not exist, or accessToken is expired, then request new accessToken
+        if (accessCode == null ||
+            jwtPayload == null ||
+            jwtPayload['exp'] <= timestampNow) {
+          await apiService
+              .loginDevice(
+                  deviceId: deviceInfoModel.imei,
+                  password: appState.appSecrets.password)
+              .then((res) {
+            appState.appSecrets.accessCode = res;
+            appState.setAppSecrets(appState.appSecrets);
+            retry = 0;
+          }).catchError((error) {
+            print('catch error');
+            if (error.response.statusCode == 401 && retry > 0) {
+              appState.appSecrets.password = null;
+            } else {
+              throw error;
+            }
+          });
+        } else {
+          retry = 0;
+        }
+        print('retry: $retry');
+      } while (retry-- > 0);
+
+      return Future.value(appState.appSecrets.accessCode);
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
   }
 }
