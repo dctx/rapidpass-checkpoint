@@ -75,6 +75,10 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _buildFieldRow(
+                  'Name',
+                  qrData.name,
+                ),
+                _buildFieldRow(
                   'Pass Type',
                   qrData.passType == PassType.Individual
                       ? 'I - INDIVIDUAL'
@@ -99,10 +103,6 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
                 _buildFieldRow(
                   'Valid Until',
                   '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(qrData.validUntil * 1000))}',
-                ),
-                _buildFieldRow(
-                  'Name',
-                  qrData.name,
                 ),
               ],
             ),

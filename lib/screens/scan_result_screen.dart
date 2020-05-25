@@ -40,6 +40,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     final qrData = scanResults.qrData;
     final tableData = qrData != null
         ? {
+            RapidPassField.name: qrData.name ?? '',
             RapidPassField.passType: (qrData.passType == PassType.Vehicle)
                 ? "V - Vehicle"
                 : "I - Individual",
@@ -48,16 +49,15 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
             RapidPassField.apor: qrData.purpose(),
             RapidPassField.validFrom: qrData.validFromDisplayDate(),
             RapidPassField.validUntil: qrData.validUntilDisplayDate(),
-            RapidPassField.name: qrData.name ?? ''
           }
         : {
+            RapidPassField.name: '',
             RapidPassField.passType: '',
             RapidPassField.controlCode: '',
             RapidPassField.idOrPlate: '',
             RapidPassField.apor: '',
             RapidPassField.validFrom: '',
             RapidPassField.validUntil: '',
-            RapidPassField.name: ''
           };
     final passResultsData = tableData.entries.map((e) {
       var field = e.key;

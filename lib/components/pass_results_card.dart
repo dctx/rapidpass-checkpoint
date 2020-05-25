@@ -22,6 +22,7 @@ class PassResultsCard extends StatelessWidget {
   final Color color;
   final bool allRed;
   final bool headerOnly;
+
   const PassResultsCard(
       {this.iconName,
       this.headerText,
@@ -54,8 +55,10 @@ class PassResultsCard extends StatelessWidget {
                 child: Text(
                   row.value,
                   textAlign: TextAlign.right,
-                  style: tableTextStyle.copyWith(
-                      color: Colors.red, fontWeight: FontWeight.bold),
+                  style: row.label == 'Name'
+                      ? tableTextStyle.copyWith(
+                          fontWeight: FontWeight.bold, fontSize: 20)
+                      : tableTextStyle.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               onTap: () => DialogHelper.showAlertDialog(context,
@@ -76,7 +79,10 @@ class PassResultsCard extends StatelessWidget {
             child: Text(
               row.value,
               textAlign: TextAlign.right,
-              style: tableTextStyle.copyWith(fontWeight: FontWeight.bold),
+              style: row.label == 'Name'
+                  ? tableTextStyle.copyWith(
+                      fontWeight: FontWeight.bold, fontSize: 20)
+                  : tableTextStyle.copyWith(fontWeight: FontWeight.bold),
             ),
           )
         ]);
