@@ -66,7 +66,10 @@ class SoftwareUpdateService {
       final String localDirectory = await _cachePath;
       final String apkDownloadDir = '$localDirectory/apk';
 
-      if (version == packageInfo.version) {
+      final currentVersion =
+          '${packageInfo.version}+${packageInfo.buildNumber}';
+
+      if (version == currentVersion) {
         final dir = Directory(apkDownloadDir);
         if (dir.existsSync()) {
           dir.listSync().forEach((f) {
