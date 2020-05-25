@@ -144,6 +144,8 @@ class ApiRepository extends IApiRepository {
       AppState appState, DeviceInfoModel deviceInfoModel) async {
     getAccessToken(appState, deviceInfoModel).then((accessToken) {
       apiService.checkUpdate(accessToken);
+    }).catchError((e) {
+      debugPrint('checkUpdate() exception: ' + e.toString());
     });
   }
 
@@ -153,6 +155,10 @@ class ApiRepository extends IApiRepository {
     int retry = 1;
 
     try {
+      if (appState.appSecrets == null || appState.masterQrCode == null) {
+        throw "Insufficient information.";
+      }
+
       do {
         // if password does not exist, then register the device
         if (appState.appSecrets.password == null) {
