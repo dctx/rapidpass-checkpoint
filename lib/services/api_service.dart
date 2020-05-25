@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
@@ -22,6 +23,11 @@ class ApiException implements Exception {
 abstract class IApiService {
   Future<void> authenticateDevice({String imei, String masterKey});
 
+  Future<AppSecrets> registerDevice(
+      {String deviceId, String imei, String masterKey, String password});
+
+  Future<String> loginDevice({String deviceId, String password});
+
   Future<DatabaseSyncState> getBatchPasses(
       String accessCode, DatabaseSyncState state);
 
@@ -41,6 +47,8 @@ class ApiService extends IApiService {
   final SoftwareUpdateService softwareUpdate;
 
   static const authenticateDevicePath = '/checkpoint/auth';
+  static const registerDevicePath = '/checkpoint/register';
+  static const loginDevicePath = '/openid-connect/token';
   static const getBatchPassesPath = '/batch/access-passes';
   static const getRevokePassesPath = '/checkpoint/revocations';
 
@@ -81,7 +89,8 @@ class ApiService extends IApiService {
           return AppSecrets(
               signingKey: data['signingKey'],
               encryptionKey: data['encryptionKey'],
-              accessCode: data['accessCode']);
+              accessCode: data['accessCode'],
+              password: '');
         }
       }
       return Future.error('Unknown response from server.');
@@ -112,6 +121,116 @@ class ApiService extends IApiService {
           throw e;
         }
       }
+    }
+  }
+
+  @override
+  Future<AppSecrets> registerDevice(
+      {String deviceId, String imei, String masterKey, String password}) async {
+    debugPrint(
+        'registerDevice() deviceId: $deviceId, imei: $imei, masterKey: $masterKey, password: $password');
+    final Dio client = Dio(BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: 30000,
+        receiveTimeout: 60000,
+        contentType: Headers.jsonContentType));
+    client.httpClientAdapter = httpClientAdapter;
+
+    try {
+      final response = await client.post(registerDevicePath, data: {
+        'deviceId': deviceId,
+        'imei': imei,
+        'masterKey': masterKey,
+        'password': password
+      });
+      final statusCode = response.statusCode;
+      final data = response.data;
+      debugPrint('${inspect(data)}');
+      debugPrint('statusCode: $statusCode');
+
+      if (data == null) {
+        return Future.error('No response from server.');
+      } else if (data is List<dynamic>) {
+        for (final key in data) {
+          return AppSecrets(
+              encryptionKey: key['encryptionKey'],
+              signingKey:
+                  key.containsKey('encryptionKey') ? key['signingKey'] : '',
+              accessCode: '',
+              password: password);
+        }
+      } else if (data is Map<String, dynamic>) {
+        if (data.containsKey('message')) {
+          return Future.error(data['message']);
+        } else if (data.containsKey('encryptionKey')) {
+          return AppSecrets(
+              encryptionKey: data['encryptionKey'],
+              signingKey:
+                  data.containsKey('encryptionKey') ? data['signingKey'] : '',
+              accessCode: '',
+              password: password);
+        }
+      }
+      return Future.error('Unknown response from server.');
+    } on DioError catch (e) {
+      if (e.response == null) {
+        throw ApiException(
+            'Network error. Please check your internet connection.');
+      }
+      var statusCode = e.response.statusCode;
+      debugPrint('statusCode: $statusCode');
+      if (statusCode >= 500 && statusCode < 600) {
+        throw ApiException('Server error ($statusCode)',
+            statusCode: statusCode);
+      } else if (statusCode == 401) {
+        throw ApiException('Unauthorized', statusCode: 401);
+      } else {
+        final data = e.response.data;
+        print(inspect(data));
+        if (data == null) {
+          throw ApiException('No response from server.');
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('message')) {
+          var message = data['message'];
+          debugPrint("message: '$message'");
+          throw ApiException(message);
+        } else {
+          throw e;
+        }
+      }
+    }
+  }
+
+  @override
+  Future<String> loginDevice({String deviceId, String password}) async {
+    debugPrint('loginDevice() deviceID: $deviceId, password: $password');
+    final Dio client = Dio(BaseOptions(
+        baseUrl: 'https://id.cxpass.org/auth/realms/rapidpass/protocol',
+        connectTimeout: 30000,
+        receiveTimeout: 60000,
+        contentType: Headers.formUrlEncodedContentType));
+    client.httpClientAdapter = httpClientAdapter;
+
+    try {
+      final response = await client.post(loginDevicePath, data: {
+        'client_id': 'rapidpass-dashboard',
+        'grant_type': 'password',
+        'username': deviceId,
+        'password': password
+      });
+      final statusCode = response.statusCode;
+      final data = response.data;
+      debugPrint('${inspect(data)}');
+
+      if (data == null)
+        throw ApiException('empty response', statusCode: response.statusCode);
+      if (statusCode != 200)
+        ApiException('invalid response', statusCode: statusCode);
+
+      final accessToken = data['access_token'];
+      return accessToken;
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -206,10 +325,11 @@ class ApiService extends IApiService {
         contentType: Headers.jsonContentType,
         headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
-    final Response response = await client
-        .get(getRevokePassesPath, queryParameters: {'since': state.since});
 
     try {
+      final Response response = await client
+          .get(getRevokePassesPath, queryParameters: {'since': state.since});
+
       final list = response.data['data'];
       final listLength = list.length;
       final List<RevokePassesCompanion> receivedPasses = List();
@@ -219,7 +339,7 @@ class ApiService extends IApiService {
 
       for (final row in list.sublist(0, listLength)) {
         try {
-          if( row['eventType'] != "RapidPassRevoked") continue;
+          if (row['eventType'] != "RapidPassRevoked") continue;
           debugPrint('Got pass ${row['controlCode']}');
           final revokePass = RevokePass.fromJson(row);
           final companion = revokePass.createCompanion(true);
@@ -235,5 +355,13 @@ class ApiService extends IApiService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  String generatePassword(int length) {
+    var rand = new Random();
+    var codeUnits = new List.generate(length, (index) {
+      return rand.nextInt(33) + 89;
+    });
+    return new String.fromCharCodes(codeUnits);
   }
 }
