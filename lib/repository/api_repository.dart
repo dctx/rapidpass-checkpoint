@@ -185,7 +185,7 @@ class ApiRepository extends IApiRepository {
             jwtPayload['exp'] <= timestampNow) {
           await apiService
               .loginDevice(
-                  deviceId: deviceInfoModel.imei,
+                  deviceId: deviceInfoModel.deviceId,
                   password: appState.appSecrets.password)
               .then((res) {
             appState.appSecrets.accessCode = res;

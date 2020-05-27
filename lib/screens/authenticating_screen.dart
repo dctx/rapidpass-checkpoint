@@ -105,7 +105,7 @@ class AuthenticatingScreenState extends State<AuthenticatingScreen> {
           masterKey: masterQrCode,
           password: password);
       await apiService
-          .loginDevice(deviceId: imei, password: password)
+          .loginDevice(deviceId: deviceId, password: password)
           .then((res) {
         appSecrets.accessCode = res;
       });

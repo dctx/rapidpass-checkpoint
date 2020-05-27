@@ -318,7 +318,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
             jwtPayload['exp'] <= timestampNow) {
           await apiRepository.apiService
               .loginDevice(
-                  deviceId: deviceInfoModel.imei,
+                  deviceId: deviceInfoModel.deviceId,
                   password: appState.appSecrets.password)
               .then((res) {
             appState.appSecrets.accessCode = res;
