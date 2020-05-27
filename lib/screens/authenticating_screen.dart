@@ -52,7 +52,7 @@ class AuthenticatingScreenState extends State<AuthenticatingScreen> {
             appState.masterQrCode = null;
             await AppStorage.resetMasterQrCode();
             message =
-                'Unauthorized. Device is not yet registered or Master QR is incorrect. Please contact Administator.';
+                'Unauthorized. Device is not yet registered or Master QR is incorrect. Please contact Administrator.';
           } else if (statusCode >= 500 && statusCode < 600) {
             title = 'Server error';
           }
