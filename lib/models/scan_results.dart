@@ -71,7 +71,7 @@ class ScanResultStatus {
     INVALID_START_DATE,
     INVALID_END_DATE,
     INVALID_PLATE_NUMBER,
-    RAPIDPASS_SUSPENDED,
+    RAPIDPASS_REVOKED,
     PLATE_NUMBER_NOT_FOUND,
     CONTROL_CODE_NOT_FOUND,
     CONTROL_NUMBER_NOT_FOUND,
@@ -92,8 +92,8 @@ class ScanResultStatus {
       mainMessage: 'ENTRY DENIED', subMessage: 'RAPIDPASS HAS EXPIRED');
   static const INVALID_PLATE_NUMBER = const ScanResultStatus._internal(6,
       mainMessage: 'ENTRY DENIED', subMessage: 'RAPIDPASS IS INVALID');
-  static const RAPIDPASS_SUSPENDED = const ScanResultStatus._internal(7,
-      mainMessage: 'ENTRY DENIED', subMessage: 'RAPIDPASS IS SUSPENDED');
+  static const RAPIDPASS_REVOKED = const ScanResultStatus._internal(7,
+      mainMessage: 'ENTRY DENIED', subMessage: 'RAPIDPASS IS REVOKED');
   static const PLATE_NUMBER_NOT_FOUND = const ScanResultStatus._internal(8,
       mainMessage: 'ENTRY DENIED', subMessage: 'PLATE NUMBER NOT FOUND');
   static const CONTROL_CODE_NOT_FOUND = const ScanResultStatus._internal(9,

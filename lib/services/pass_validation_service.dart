@@ -98,11 +98,11 @@ class PassValidationService {
       results.addError('Invalid Plate Number',
           source: RapidPassField.idOrPlate);
     }
-    if (qrData.status == 'SUSPENDED') {
-      results.status = ScanResultStatus.RAPIDPASS_SUSPENDED;
+    if (qrData.status == 'REVOKED') {
+      results.status = ScanResultStatus.RAPIDPASS_REVOKED;
       results.resultMessage = 'ENTRY DENIED';
-      results.resultSubMessage = 'RAPIDPASS IS SUSPENDED';
-      results.addError('Suspended status.', source: RapidPassField.status);
+      results.resultSubMessage = 'RAPIDPASS IS REVOKED';
+      results.addError('Revoked status.', source: RapidPassField.status);
     }
     return results;
   }
@@ -204,7 +204,7 @@ class PassValidationService {
     ScanResults result;
     if (revokePass != null) {
       // This RapidPass is in the Revocation list,
-      // so mark it as SUSPENDED, then re-validate.
+      // so mark it as REVOKED, then re-validate.
       final QrData qrData = QrData(
           passType: sr.qrData.passType,
           apor: sr.qrData.apor,
@@ -212,7 +212,7 @@ class PassValidationService {
           validFrom: sr.qrData.validFrom,
           validUntil: sr.qrData.validUntil,
           idOrPlate: sr.qrData.idOrPlate,
-          status: 'SUSPENDED',
+          status: 'REVOKED',
           name: sr.qrData.name);
       result = validate(qrData);
       result.mode = sr.mode;
