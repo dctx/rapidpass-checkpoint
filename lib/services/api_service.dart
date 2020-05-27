@@ -233,6 +233,8 @@ class ApiService extends IApiService {
 
       final accessToken = data['access_token'];
       return accessToken;
+    } on DioError catch (e) {
+      throw ApiException('Authentication Error', statusCode: e.response.statusCode);
     } catch (e) {
       rethrow;
     }
