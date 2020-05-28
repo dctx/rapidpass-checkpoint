@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:rapidpass_checkpoint/components/flavor_banner.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class FeedbackScreen extends StatefulWidget {
   @override
@@ -8,7 +8,6 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-  bool _showLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -20,23 +19,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               return Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
-                  WebView(
-                    initialUrl: 'https://rapidpass.ph/qcp-feedback',
-                    javascriptMode: JavascriptMode.unrestricted,
-                    onPageFinished: (value) {
-                      setState(() {
-                        _showLoading = false;
-                      });
-                    },
+                  WebviewScaffold(
+                    url: "https://rapidpass.ph/qcp-feedback",
+                    withZoom: true,
+                    withJavascript: true,
+                    hidden: true,
                   ),
-                  _showLoading
-                      ? Container(
-                          color: Colors.white,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : SizedBox.shrink(),
                 ],
               );
             },
