@@ -159,7 +159,7 @@ class MainMenu extends StatelessWidget {
   }
 
   Future<UsageStats> _getUsageStats(BuildContext context) {
-    final appState = Provider.of<AppState>(context, listen: false);
+    final appState = Provider.of<AppState>(context, listen: true);
 
     // get 12 midnight timestamp today
     int timestampToday = appState.stats
