@@ -105,6 +105,10 @@ class UsageLogService {
   static Future<void> deleteUsageLog(BuildContext context) {
     final ApiRepository apiRepository =
         Provider.of<ApiRepository>(context, listen: false);
-    return apiRepository.localDatabaseService.deleteUsageLogs();
+    return apiRepository.localDatabaseService.deleteUsageLogs().then((_) {
+      final AppState appState = Provider.of<AppState>(context, listen: false);
+      appState.stats.oneDay.resetStats();
+      appState.stats.oneWeek.resetStats();
+    });
   }
 }
