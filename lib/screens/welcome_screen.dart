@@ -67,6 +67,8 @@ class WelcomeScreenState extends State<WelcomeScreen>
             Provider.of<DeviceInfoModel>(context, listen: false);
         apiRepository.checkUpdate(appState, deviceInfoModel);
       }
+
+      apiRepository.localDatabaseService.appDatabase.checkEndianness();
     });
   }
 
