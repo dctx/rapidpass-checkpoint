@@ -294,4 +294,8 @@ class AppDatabase extends _$AppDatabase {
     await (delete(usageLogs)..where((t) => t.id.equals(insertId))).go();
     return Future.value(endianStatus);
   }
+
+  void setEndianness(final bool status) {
+    endianStatus = status;
+  }
 }

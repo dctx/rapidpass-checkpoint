@@ -68,7 +68,19 @@ class WelcomeScreenState extends State<WelcomeScreen>
         apiRepository.checkUpdate(appState, deviceInfoModel);
       }
 
-      apiRepository.localDatabaseService.appDatabase.checkEndianness();
+      await AppStorage.getDatabaseEndianness().then((status) async {
+        if (status == null) {
+          await apiRepository.localDatabaseService.appDatabase
+              .checkEndianness()
+              .then((res) async {
+            AppStorage.setDatabaseEndianness(res);
+            status = res;
+          });
+        } else {
+          apiRepository.localDatabaseService.appDatabase.setEndianness(status);
+        }
+        print('Database Endianness: $status');
+      });
     });
   }
 
