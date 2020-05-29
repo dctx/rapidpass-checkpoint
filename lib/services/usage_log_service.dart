@@ -35,7 +35,7 @@ class UsageLogService {
 
     await apiRepository.localDatabaseService
         .insertUsageLog(UsageLog.fromJson({
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'timestamp': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'controlNumber': result?.qrData?.controlCode,
       'inputData': result.inputData,
       'mode': result.mode.value,

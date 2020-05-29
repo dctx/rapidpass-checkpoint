@@ -295,7 +295,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
           height: 10.0,
         ),
         Text(
-          '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.usageLog.timestamp))}'
+          '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.usageLog.timestamp * 1000))}'
           ' via ${_getModeName(log.usageLog.mode)}',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),

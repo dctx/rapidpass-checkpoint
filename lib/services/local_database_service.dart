@@ -207,18 +207,18 @@ class LocalDatabaseService implements ILocalDatabaseService {
 
   @override
   Future<List<UsageDateLog>> getUsageDateLog() async {
-    List<UsageLog> res = await appDatabase.getUsageLogs();
-    const int milliseconds1Hour = 1000 * 60 * 60;
+    final List<UsageLog> res = await appDatabase.getUsageLogs();
+    const int seconds1Hour = 60 * 60;
 
     // group per day starting from 12 midnight of current timezone
     final int timeZoneOffset = DateTime.now().timeZoneOffset.inHours;
     dynamic stats = {};
-    for (UsageLog log in res) {
-      int date = (log.timestamp + (milliseconds1Hour * timeZoneOffset)) ~/
-          (milliseconds1Hour * 24);
-      String key = ((date * (milliseconds1Hour * 24)) -
-              (milliseconds1Hour * timeZoneOffset))
-          .toString();
+    for (final UsageLog log in res) {
+      int date = (log.timestamp + (seconds1Hour * timeZoneOffset)) ~/
+          (seconds1Hour * 24);
+      String key =
+          ((date * (seconds1Hour * 24)) - (seconds1Hour * timeZoneOffset))
+              .toString();
       if (stats[key] == null) {
         stats[key] = {};
         stats[key]['scanned'] = 0;
