@@ -42,6 +42,12 @@ class UsageStatsDetail {
       this.approved = 0,
       this.denied = 0});
 
+  void resetStats() {
+    this.scanned = 0;
+    this.approved = 0;
+    this.denied = 0;
+  }
+
   @override
   toString() {
     return '{ scanned:${this.scanned} , approved: ${this.approved}, denied: ${this.denied} }';

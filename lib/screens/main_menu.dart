@@ -159,7 +159,7 @@ class MainMenu extends StatelessWidget {
   }
 
   Future<UsageStats> _getUsageStats(BuildContext context) {
-    final appState = Provider.of<AppState>(context, listen: false);
+    final appState = Provider.of<AppState>(context, listen: true);
 
     // get 12 midnight timestamp today
     int timestampToday = appState.stats
@@ -173,9 +173,8 @@ class MainMenu extends StatelessWidget {
         int timestampLastWeek = timestampToday - (60 * 60 * 24 * 6);
         appState.stats.oneDay.timestamp = timestampToday;
         appState.stats.oneWeek.timestamp = timestampLastWeek;
-        appState.stats.oneWeek.scanned = 0;
-        appState.stats.oneWeek.approved = 0;
-        appState.stats.oneWeek.denied = 0;
+        appState.stats.oneDay.resetStats();
+        appState.stats.oneWeek.resetStats();
 
         res.forEach((final log) {
           if (log.timestamp == timestampToday) {
@@ -212,7 +211,7 @@ class MainMenu extends StatelessWidget {
             approved: stats.oneDay.approved,
             denied: stats.oneDay.denied),
         _buildStatsRow(
-            title: 'This Week ($dateWeek to $dateToday)',
+            title: 'Last 7 days ($dateWeek to $dateToday)',
             scanned: stats.oneWeek.scanned,
             approved: stats.oneWeek.approved,
             denied: stats.oneWeek.denied)
