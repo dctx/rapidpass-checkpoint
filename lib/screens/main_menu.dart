@@ -211,7 +211,7 @@ class MainMenu extends StatelessWidget {
             approved: stats.oneDay.approved,
             denied: stats.oneDay.denied),
         _buildStatsRow(
-            title: 'This Week ($dateWeek to $dateToday)',
+            title: 'Last 7 days ($dateWeek to $dateToday)',
             scanned: stats.oneWeek.scanned,
             approved: stats.oneWeek.approved,
             denied: stats.oneWeek.denied)
