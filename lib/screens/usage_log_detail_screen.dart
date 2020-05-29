@@ -295,8 +295,7 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
           height: 10.0,
         ),
         Text(
-          '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.usageLog.timestamp * 1000))}'
-          ' via ${_getModeName(log.usageLog.mode)}',
+          '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.usageLog.timestamp * 1000))}',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         Text('GPS Coordinates:    '
