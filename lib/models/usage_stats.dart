@@ -10,15 +10,14 @@ class UsageStats {
   }
 
   int getMidnightTimestamp(int timestamp) {
-    const int milliseconds1Hour = 1000 * 60 * 60;
+    const int seconds1Hour = 60 * 60;
     // get timezone offset
     final int timeZoneOffset = DateTime.now().timeZoneOffset.inHours;
     // get 12 midnight timestamp in UTC
-    int date = (timestamp + (milliseconds1Hour * timeZoneOffset)) ~/
-        (milliseconds1Hour * 24);
+    int date =
+        (timestamp + (seconds1Hour * timeZoneOffset)) ~/ (seconds1Hour * 24);
     // get 12 midnight timestamp in current timezone
-    return ((date * (milliseconds1Hour * 24)) -
-        (milliseconds1Hour * timeZoneOffset));
+    return ((date * (seconds1Hour * 24)) - (seconds1Hour * timeZoneOffset));
   }
 
   void incrementStats({final int approved, final int denied}) {

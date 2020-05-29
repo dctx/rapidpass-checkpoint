@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:moor/moor.dart';
 
 part 'app_database.g.dart';
@@ -77,6 +80,8 @@ class RevokePasses extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase(QueryExecutor executor) : super(executor);
 
+  bool endianStatus = false;
+
   @override
   int get schemaVersion => 3;
 
@@ -149,17 +154,43 @@ class AppDatabase extends _$AppDatabase {
   Future insertUsageLog(final UsageLogsCompanion usageLogsCompanion) =>
       into(usageLogs).insert(usageLogsCompanion);
 
-  Future<List<UsageLog>> getUsageLogs() => (select(usageLogs).get());
+  Future<List<UsageLog>> getUsageLogs() async {
+    final List<UsageLog> res = (await select(usageLogs).get());
 
-  Future<List<UsageLog>> getUsageLogsByTimestamp(int start, int end) =>
-      (select(usageLogs)..where((t) => t.timestamp.isBetweenValues(start, end)))
-          .get();
+    if (endianStatus) {
+      return Future.value(res.map((f) => convertUsageLog(f)).toList());
+    } else {
+      return Future.value(res);
+    }
+  }
 
-  Future<List<UsageLog>> getUsageLogsByControlNumber(int controlNumber) =>
-      (select(usageLogs)..where((t) => t.controlNumber.equals(controlNumber)))
-          .get();
+  Future<List<UsageLog>> getUsageLogsByTimestamp(int start, int end) async {
+    final List<UsageLog> res = await (select(usageLogs)
+          ..where((t) => t.timestamp.isBetweenValues(start, end)))
+        .get();
 
-  Future deleteUsageLogs() => delete(usageLogs).go();
+    if (endianStatus) {
+      return Future.value(res.map((f) => convertUsageLog(f)).toList());
+    } else {
+      return Future.value(res);
+    }
+  }
+
+  Future<List<UsageLog>> getUsageLogsByControlNumber(int controlNumber) async {
+    final List<UsageLog> res = await (select(usageLogs)
+          ..where((t) => t.controlNumber.equals(controlNumber)))
+        .get();
+
+    if (endianStatus) {
+      return Future.value(res.map((f) => convertUsageLog(f)).toList());
+    } else {
+      return Future.value(res);
+    }
+  }
+
+  Future deleteUsageLogs() {
+    return delete(usageLogs).go();
+  }
 
   Future<int> countRevokePasses() async {
     var list = (await select(revokePasses).get());
@@ -199,5 +230,72 @@ class AppDatabase extends _$AppDatabase {
 
   Future deleteRevokePasses() {
     return delete(revokePasses).go();
+  }
+
+  UsageLog convertUsageLog(UsageLog data) {
+    return UsageLog(
+        id: data.id,
+        timestamp: convertEndianUint64(data.timestamp.toUnsigned(64)),
+        controlNumber: convertEndianUint64(data.controlNumber.toUnsigned(64)),
+        mode: convertEndianUint64(data.mode.toUnsigned(64)),
+        status: convertEndianUint64(data.status.toUnsigned(64)),
+        inputData: data.inputData,
+        latitude: convertEndianDouble(data.latitude),
+        longitude: convertEndianDouble(data.longitude));
+  }
+
+  int convertEndianUint64(int value) {
+    var byteData = new ByteData(8);
+    byteData.setUint64(0, value);
+    Uint32List uint32List1 = byteData.buffer.asUint32List();
+    Uint32List uint32List2 = Uint32List.fromList(
+        [uint32List1.elementAt(1), uint32List1.elementAt(0)]);
+    byteData = ByteData.view(uint32List2.buffer);
+    return byteData.getInt64(0);
+  }
+
+  double convertEndianDouble(double value) {
+    var byteData = new ByteData(8);
+    byteData.setFloat64(0, value);
+    Uint32List uint32List1 = byteData.buffer.asUint32List();
+    Uint32List uint32List2 = Uint32List.fromList(
+        [uint32List1.elementAt(1), uint32List1.elementAt(0)]);
+    byteData = ByteData.view(uint32List2.buffer);
+    return byteData.getFloat64(0);
+  }
+
+  Future<bool> checkEndianness() async {
+    print('checking database endianness...');
+
+    // make a test write to database
+    final int insertId = await into(usageLogs).insert(UsageLog.fromJson({
+      'timestamp': 1,
+      'controlNumber': 1,
+      'inputData': '',
+      'mode': 1,
+      'status': 1,
+      'latitude': 1.0,
+      'longitude': 1.0
+    }));
+
+    // read the written data
+    final List<UsageLog> selectData =
+        await (select(usageLogs)..where((t) => t.id.equals(insertId))).get();
+    selectData.forEach((f) => print(f.toString()));
+
+    // check if data is correct or not
+    if (selectData.isNotEmpty && selectData[0].timestamp != 1) {
+      endianStatus = true;
+    } else {
+      endianStatus = false;
+    }
+
+    // delete test data
+    await (delete(usageLogs)..where((t) => t.id.equals(insertId))).go();
+    return Future.value(endianStatus);
+  }
+
+  void setEndianness(final bool status) {
+    endianStatus = status;
   }
 }

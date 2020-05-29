@@ -19,6 +19,7 @@ class AppStorage {
   static const _accessPassword = 'rapidPass.accessPassword';
   static const _lastSyncOnKey = 'revokeLastSyncOn';
   static const _databaseSyncLogKey = "revokeSyncLog";
+  static const _databaseEndiannessKey = "databaseEndianness";
 
   static Future<void> setMasterQrCode(final String masterQrCode) async {
     if (masterQrCode == null) return;
@@ -166,5 +167,15 @@ class AppStorage {
     final Random random = Random.secure();
     return Uint8List.fromList(
         List<int>.generate(16, (i) => random.nextInt(256)));
+  }
+
+  static Future<bool> getDatabaseEndianness() => SharedPreferences.getInstance()
+      .then((prefs) => prefs.containsKey(_databaseEndiannessKey)
+          ? prefs.getBool(_databaseEndiannessKey)
+          : null);
+
+  static Future<bool> setDatabaseEndianness(bool value) {
+    return SharedPreferences.getInstance().then((prefs) =>
+        prefs.setBool(_databaseEndiannessKey, value).then((_) => value));
   }
 }

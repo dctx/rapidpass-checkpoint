@@ -163,14 +163,14 @@ class MainMenu extends StatelessWidget {
 
     // get 12 midnight timestamp today
     int timestampToday = appState.stats
-        .getMidnightTimestamp(DateTime.now().millisecondsSinceEpoch);
+        .getMidnightTimestamp(DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
     if (appState.stats.oneDay.timestamp == 0 ||
         appState.stats.oneDay.timestamp != timestampToday) {
       // query database and update cached data (appState.stats)
       return UsageLogService.getUsageLogByDate(context).then((res) {
         // get timestamp of last 6 days
-        int timestampLastWeek = timestampToday - (1000 * 60 * 60 * 24 * 6);
+        int timestampLastWeek = timestampToday - (60 * 60 * 24 * 6);
         appState.stats.oneDay.timestamp = timestampToday;
         appState.stats.oneWeek.timestamp = timestampLastWeek;
         appState.stats.oneWeek.scanned = 0;
@@ -200,9 +200,9 @@ class MainMenu extends StatelessWidget {
 
   _buildStatsWidget({final UsageStats stats}) {
     String dateToday =
-        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneDay.timestamp))}';
+        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneDay.timestamp * 1000))}';
     String dateWeek =
-        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneWeek.timestamp))}';
+        '${DateFormat('MMMM dd, yyyy').format(DateTime.fromMillisecondsSinceEpoch(stats.oneWeek.timestamp * 1000))}';
 
     return Column(
       children: <Widget>[

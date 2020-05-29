@@ -210,7 +210,7 @@ class _UsageLogCountScreenState extends State<UsageLogCountScreen> {
         Expanded(
           flex: 1,
           child: Text(
-            '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.timestamp))}',
+            '${DateFormat('MMM dd, yyyy hh:mm aaa').format(new DateTime.fromMillisecondsSinceEpoch(log.timestamp * 1000))}',
             textAlign: TextAlign.right,
           ),
         ),

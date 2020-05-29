@@ -68,7 +68,7 @@ class _UsageLogScreenState extends State<UsageLogScreen> {
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
         trailing: Text(
-          '${DateFormat('MMM dd, yyyy').format(new DateTime.fromMillisecondsSinceEpoch(log.timestamp))}',
+          '${DateFormat('MMM dd, yyyy').format(new DateTime.fromMillisecondsSinceEpoch(log.timestamp * 1000))}',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         onTap: () => Navigator.pushNamed(context, '/usageLogDetail',
