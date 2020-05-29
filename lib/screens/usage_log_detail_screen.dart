@@ -299,8 +299,8 @@ class UsageLogDetailScreenState extends State<UsageLogDetailScreen> {
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         Text('GPS Coordinates:    '
-            '${log.usageLog?.latitude != null ? log.usageLog.latitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''}    '
-            '${log.usageLog?.longitude != null ? log.usageLog.longitude.toStringAsFixed(8) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''} ')
+            '${log.usageLog?.latitude != null ? log.usageLog.latitude.toStringAsFixed(7) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''}    '
+            '${log.usageLog?.longitude != null ? log.usageLog.longitude.toStringAsFixed(7) + '' + htmlParser.DocumentFragment.html("&#176;").text : ''} ')
       ],
     );
   }
