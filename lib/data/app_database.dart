@@ -280,7 +280,7 @@ class AppDatabase extends _$AppDatabase {
 
     // read the written data
     final List<UsageLog> selectData =
-        await (select(usageLogs)..where((t) => t.id.equals(insertId))).get();
+        await ((select(usageLogs)..where((t) => t.timestamp.equals(1))).get());
     selectData.forEach((f) => print(f.toString()));
 
     // check if data is correct or not
@@ -291,7 +291,7 @@ class AppDatabase extends _$AppDatabase {
     }
 
     // delete test data
-    await (delete(usageLogs)..where((t) => t.id.equals(insertId))).go();
+    await ((delete(usageLogs)..where((t) => t.timestamp.equals(1))).go());
     return Future.value(endianStatus);
   }
 
