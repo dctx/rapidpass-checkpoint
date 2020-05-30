@@ -65,16 +65,16 @@ class ApiService extends IApiService {
         this.softwareUpdate = SoftwareUpdateService(
             baseUrl: baseUrl, httpClientAdapter: httpClientAdapter);
 
-  static const int thirtySeconds = 30000;
-  static const int tenSeconds = 10000;
+  static const int connectTimeout = 60000;
+  static const int receiveTimeout = 60000;
 
   @override
   Future<AppSecrets> authenticateDevice(
       {final String imei, final String masterKey}) async {
     final Dio client = Dio(BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: thirtySeconds,
-        receiveTimeout: tenSeconds,
+        connectTimeout: connectTimeout,
+        receiveTimeout: receiveTimeout,
         contentType: Headers.jsonContentType));
     client.httpClientAdapter = httpClientAdapter;
     try {
@@ -135,8 +135,8 @@ class ApiService extends IApiService {
         'registerDevice() deviceId: $deviceId, imei: $imei, masterKey: $masterKey, password: $password');
     final Dio client = Dio(BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: 30000,
-        receiveTimeout: 60000,
+        connectTimeout: connectTimeout,
+        receiveTimeout: receiveTimeout,
         contentType: Headers.jsonContentType));
     client.httpClientAdapter = httpClientAdapter;
 
@@ -210,8 +210,8 @@ class ApiService extends IApiService {
     debugPrint('loginDevice() deviceID: $deviceId, password: $password, keycloakRealm: $keycloakRealm, keycloakClient: $keycloakClient');
     final Dio client = Dio(BaseOptions(
         baseUrl: 'https://id.cxpass.org/auth/realms/$keycloakRealm/protocol',
-        connectTimeout: 30000,
-        receiveTimeout: 60000,
+        connectTimeout: connectTimeout,
+        receiveTimeout: receiveTimeout,
         contentType: Headers.formUrlEncodedContentType));
     client.httpClientAdapter = httpClientAdapter;
 
@@ -250,8 +250,8 @@ class ApiService extends IApiService {
     }
     final Dio client = Dio(BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: 30000,
-        receiveTimeout: 60000,
+        connectTimeout: connectTimeout,
+        receiveTimeout: receiveTimeout,
         contentType: Headers.jsonContentType,
         headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
@@ -326,8 +326,8 @@ class ApiService extends IApiService {
     }
     final Dio client = Dio(BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: 30000,
-        receiveTimeout: 60000,
+        connectTimeout: connectTimeout,
+        receiveTimeout: receiveTimeout,
         contentType: Headers.jsonContentType,
         headers: {'Authorization': 'Bearer $accessToken'}));
     client.httpClientAdapter = httpClientAdapter;
