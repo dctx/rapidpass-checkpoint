@@ -26,7 +26,26 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     return FlavorBanner(
       child: Scaffold(
-          appBar: AppBar(title: Text('Settings')),
+          appBar: AppBar(
+            title: Text('Settings'),
+            actions: <Widget>[
+              PopupMenuButton(
+                onSelected: (value) {
+                  if (value == 0) {
+                    _resetUsageLog(context);
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem(
+                      child: Text('Clear Usage Log'),
+                      value: 0,
+                    )
+                  ];
+                },
+              )
+            ],
+          ),
           body: Center(
               child: SingleChildScrollView(
                   child: Column(
