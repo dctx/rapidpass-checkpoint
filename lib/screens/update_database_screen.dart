@@ -298,7 +298,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
         if (appState.appSecrets.password == null) {
           await apiRepository.apiService
               .registerDevice(
-                  deviceId: deviceInfoModel.imei,
+                  deviceId: deviceInfoModel.deviceId,
                   imei: deviceInfoModel.imei,
                   masterKey: appState.masterQrCode,
                   password: apiRepository.apiService.generatePassword(20))
