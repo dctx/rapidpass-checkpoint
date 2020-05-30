@@ -197,7 +197,7 @@ class LocalDatabaseService implements ILocalDatabaseService {
   @override
   Future<List<UsageLog>> getUsageLogs24Hours(int timestamp) {
     return appDatabase.getUsageLogsByTimestamp(
-        timestamp, timestamp + (1000 * 60 * 60 * 24));
+        timestamp, timestamp + (60 * 60 * 24));
   }
 
   @override
