@@ -276,7 +276,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
         context,
         title: 'Database Sync Failed!',
         message:
-            'There\'s something wrong while getting the new information from the database.',
+            'There\'s something wrong while getting the new information from the database. Please try again.',
       );
     }
 
@@ -442,7 +442,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
           context,
           title: 'Database Sync Failed!',
           message:
-              'There\'s something wrong while getting the new information from the database.',
+              'There\'s something wrong while getting the new information from the database. Please try again.',
         );
       }
     }
@@ -546,7 +546,7 @@ class _UpdateDatabaseScreenState extends State<UpdateDatabaseScreen> {
           context,
           title: 'Database Sync Failed!',
           message:
-              'There\'s something wrong while getting the new information from the database.',
+              'There\'s something wrong while getting the new information from the database. Please try again.',
         );
       }
     }

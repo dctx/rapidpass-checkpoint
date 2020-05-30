@@ -102,7 +102,7 @@ class ApiService extends IApiService {
       debugPrint(e.toString());
       if (e.response == null) {
         throw ApiException(
-            'Network error. Please check your internet connection.');
+            'Network error. Please check your internet connection and try again.');
       }
       var statusCode = e.response.statusCode;
       debugPrint('statusCode: $statusCode');
@@ -179,7 +179,7 @@ class ApiService extends IApiService {
     } on DioError catch (e) {
       if (e.response == null) {
         throw ApiException(
-            'Network error. Please check your internet connection.');
+            'Network error. Please check your internet connection and try again.');
       }
       var statusCode = e.response.statusCode;
       debugPrint('statusCode: $statusCode');
