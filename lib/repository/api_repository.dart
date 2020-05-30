@@ -164,7 +164,7 @@ class ApiRepository extends IApiRepository {
         if (appState.appSecrets.password == null) {
           await apiService
               .registerDevice(
-                  deviceId: deviceInfoModel.imei,
+                  deviceId: deviceInfoModel.deviceId,
                   imei: deviceInfoModel.imei,
                   masterKey: appState.masterQrCode,
                   password: apiService.generatePassword(20))
