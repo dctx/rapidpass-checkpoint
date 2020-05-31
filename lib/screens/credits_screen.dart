@@ -107,12 +107,12 @@ class CreditsScreen extends ModalRoute<void> {
     'Alistair Israel',
     'Ariel De Castro',
     'Joshua Maiquez de Guzman',
-    'Jonathan Mayol',
-    'Jan Salvador Sebastian',
-    'Josef Solon',
-    'Atik',
+    'Jonathan Jay Mayol',
+    'Jan Salvador S. Sebastian',
+    'Josef Marion V. Solon',
+    'Md Atikur Rahman Khan',
     'Ned Palacios',
-    'Ryan Jan Borja',
+    'Ryan Jan R. Borja',
     'Vince Ramces Oliveros',
     'Jonel Dominic Tapang'
   ];
