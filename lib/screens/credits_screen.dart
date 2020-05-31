@@ -114,6 +114,8 @@ class CreditsScreen extends ModalRoute<void> {
     'Ned Palacios',
     'Ryan Jan R. Borja',
     'Vince Ramces Oliveros',
-    'Jonel Dominic Tapang'
+    'Jonel Dominic Tapang',
+    'Ivan Ray Altomera',
+    'Jonas Reycian'
   ];
 }
