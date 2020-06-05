@@ -235,16 +235,18 @@ class AppDatabase extends _$AppDatabase {
   UsageLog convertUsageLog(UsageLog data) {
     return UsageLog(
         id: data.id,
-        timestamp: convertEndianUint64(data.timestamp.toUnsigned(64)),
-        controlNumber: convertEndianUint64(data.controlNumber.toUnsigned(64)),
-        mode: convertEndianUint64(data.mode.toUnsigned(64)),
-        status: convertEndianUint64(data.status.toUnsigned(64)),
+        timestamp: convertEndianUint64(data.timestamp?.toUnsigned(64)),
+        controlNumber: convertEndianUint64(data.controlNumber?.toUnsigned(64)),
+        mode: convertEndianUint64(data.mode?.toUnsigned(64)),
+        status: convertEndianUint64(data.status?.toUnsigned(64)),
         inputData: data.inputData,
         latitude: convertEndianDouble(data.latitude),
         longitude: convertEndianDouble(data.longitude));
   }
 
   int convertEndianUint64(int value) {
+    if (value == null) return null;
+
     var byteData = new ByteData(8);
     byteData.setUint64(0, value);
     Uint32List uint32List1 = byteData.buffer.asUint32List();
@@ -255,6 +257,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   double convertEndianDouble(double value) {
+    if (value == null) return null;
+
     var byteData = new ByteData(8);
     byteData.setFloat64(0, value);
     Uint32List uint32List1 = byteData.buffer.asUint32List();
