@@ -82,7 +82,12 @@ class MainMenu extends StatelessWidget {
                 if (bSnapshot.connectionState == ConnectionState.done) {
                   return bSnapshot.hasData
                       ? _buildStatsWidget(stats: bSnapshot.data)
-                      : CircularProgressIndicator();
+                      : Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(10, 40.0, 10, 10.0),
+                          child: Text(
+                              'Something went wrong while getting Usage Statistics.'),
+                        );
                 } else {
                   return CircularProgressIndicator();
                 }
